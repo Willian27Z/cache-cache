@@ -1,0 +1,32 @@
+{
+  "name": "cache-cache",
+  "version": "1.0.0",
+  "description": "A multiplayer game of hide-and-seek",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Willian27Z/cache-cache.git"
+  },
+  "keywords": [
+    "Game",
+    "Multiplayer",
+    "Online",
+    "Hide-and-Seek",
+    "Ifocop",
+    "diwjs10"
+  ],
+  "author": "Willian Zolnowski",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Willian27Z/cache-cache/issues"
+  },
+  "homepage": "https://github.com/Willian27Z/cache-cache#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "session": "^0.1.0",
+    "socket.io": "^2.2.0"
+  }
+}
