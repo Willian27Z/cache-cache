@@ -2,3 +2,44 @@ canvas{
     border: 1px solid black;
     margin: auto;
 }
+
+h2 {
+    text-align: center;
+}
+
+#loginBox {
+    display: block;
+    margin: 50px auto;
+    padding: 20px;
+    width: 400px;
+}
+
+#loginBox button {
+    display: block;
+    margin: auto;
+}
+
+.gameChair {
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: block;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.blue {
+    background: blue;
+}
+.green {
+    background: green;
+}
+.purple {
+    background: purple;
+}
+.orange {
+    background: orange;
+}
+.black {
+    background: black;
+}

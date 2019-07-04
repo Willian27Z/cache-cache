@@ -1,0 +1,90 @@
+extends partials/layout
+
+block main
+    if message.type === "error"
+        .alert.alert-danger.mt-md-3(role='alert') #{message.text}
+    if message.type === "success"
+        .alert.alert-success.mt-md-3(role='alert') #{message.text}
+    .row.m-sm-3
+        .col-4
+            .row.m-sm-3
+                h2(align="center") Joueurs en attente:
+                ul#joueurs.list-group.overflow-auto(style='width:100%')
+                    li.list-group-item.bg-warning(id=user.name) #{user.name} (Your mama can't hide!)
+                    li.list-group-item.bg-primary Beltrano (Your mama can't hide!)
+                    li.list-group-item Ciclano
+            .row.m-sm-3
+                h2(align="center") Joueurs en Jeu:
+                ul#joueursEnJeux.list-group.overflow-auto(style='width:100%')
+                    li.list-group-item Blero
+                    li.list-group-item Frero
+                    li.list-group-item Clero
+        .col-8
+            .row.m-sm-3.overflow-auto
+                h2(align="center") Jeux en Cours/Attente :
+                #gamesList.accordion(style='width:100%')
+                    .card
+                        #headingOne.card-header
+                            h2.mb-0
+                                button.btn.btn-link(type='button' data-toggle='collapse' data-target='#collapseOne' aria-expanded='true' aria-controls='collapseOne')
+                                    | Game: Your Mama can't hide!
+                        #collapseOne.collapse.show(aria-labelledby='headingOne' data-parent='#gamesList')
+                            .card-body
+                                p Carte: Map1
+                                .card.d-inline-flex.bg-warning.gameChair1(style='width: 20%;')
+                                    div.card-img-top.gameChair.blue(width='100%')
+                                    .card-body
+                                        h5.card-title.playername(align="center") #{user.name} 
+                                        h6.card-subtitle.mb-2(align="center") Chasseur
+                                        p.card-text
+                                        button.btn.btn-success(type='button' disabled) Lancer
+                                        button.btn.btn-danger(type='button') Sortir
+                                .card.d-inline-flex.bg-primary.gameChair2(style='width: 20%;')
+                                    div.card-img-top.gameChair.green(width='100%')
+                                    .card-body
+                                        h5.card-title(align="center") Beltrano
+                                        h6.card-subtitle.mb-2(align="center") Cacheur
+                                        p.card-text
+                                        button.btn.btn-warning(type='button') Prêt(e)
+                                        button.btn.btn-danger(type='button') Sortir
+                                .card.d-inline-flex.gameChair3(style='width: 20%;')
+                                    div.card-img-top.gameChair.purple(width='100%')
+                                    .card-body
+                                        h5.card-title(align="center") Libre
+                                        h6.card-subtitle.mb-2.text-muted(align="center") Cacheur
+                                        p.card-text
+                                        button.btn.btn-primary(type='button' onClick="changeColor('blue')") Joindre
+                                .card.d-inline-flex.gameChair4(style='width: 20%;')
+                                    div.card-img-top.gameChair.orange(width='100%')
+                                    .card-body
+                                        h5.card-title(align="center") Libre
+                                        h6.card-subtitle.mb-2.text-muted(align="center") Cacheur
+                                        p.card-text
+                                        button.btn.btn-primary(type='button' onClick="changeColor('blue')") Joindre
+                                .card.d-inline-flex.gameChair5(style='width: 20%;')
+                                    div.card-img-top.gameChair.black(width='100%')
+                                    .card-body
+                                        h5.card-title(align="center") Libre
+                                        h6.card-subtitle.mb-2.text-muted(align="center") Cacheur
+                                        p.card-text
+                                        button.btn.btn-primary(type='button' onClick="changeColor('blue')") Joindre
+                    .card
+                        #headingTwo.card-header
+                            h2.mb-0
+                                button.btn.btn-link.collapsed(type='button' data-toggle='collapse' data-target='#collapseTwo' aria-expanded='false' aria-controls='collapseTwo')
+                                    | Game: where is Ryan?
+                        #collapseTwo.collapse(aria-labelledby='headingTwo' data-parent='#gamesList')
+                            .card-body
+                                | Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven&apos;t heard of them accusamus labore sustainable VHS.
+                    .card
+                        #headingThree.card-header
+                            h2.mb-0
+                                button.btn.btn-link.collapsed(type='button' data-toggle='collapse' data-target='#collapseThree' aria-expanded='false' aria-controls='collapseThree')
+                                    | Game: Catch me if you can
+                        #collapseThree.collapse(aria-labelledby='headingThree' data-parent='#gamesList')
+                            .card-body
+                                | Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven&apos;t heard of them accusamus labore sustainable VHS.
+    script.
+        var myUsername = #{user.name};
+
+                    

@@ -1,0 +1,37 @@
+extends partials/layout
+
+block main
+    .jumbotron
+        h1.display-4 Bienvenu à Cache-Cache!
+        p.lead
+            | Pour jouer ou regarder des matchs, veuillez vous connecter ou s'inscrire. Ne t'inquiète pas, ça ne fait pas mal!
+    .row
+        if message.type === "error"
+            .alert.alert-danger.mt-md-3(role='alert') #{message.text}
+        .col-6
+            #loginBox.border.border-dark.rounded
+                h1.display-4 Se Connecter
+                hr
+                form(action='/login' method='GET' name='loginForm')
+                    .form-group
+                        label Identifiant (nom de joueur)
+                            input#identifiant.form-control(type='text' name='identifiant')
+                    .form-group
+                        label Mot de Passe
+                            input#mdp.form-control(type='password' name='mdp')
+                    button.btn.btn-dark(type='submit') Se connecter
+        .col-6
+            #loginBox.border.border-dark.rounded
+                h1.display-4 S'Inscrire
+                hr
+                form(action='/signup' method='GET' name='loginForm')
+                    .form-group
+                        label Identifiant (nom de joueur)
+                            input#identifiant.form-control(type='text' name='identifiant' maxlength="24")
+                    .form-group
+                        label E-mail
+                            input#identifiant.form-control(type='email' name='email')
+                    .form-group
+                        label Mot de Passe
+                            input#mdp.form-control(type='password' name='mdp' placeholder='9 caractères minimum' minlength="9")
+                    button.btn.btn-dark(type='submit') S&apos;inscrire

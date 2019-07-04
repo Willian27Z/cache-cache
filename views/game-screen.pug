@@ -1,0 +1,8 @@
+extends partials/layout
+
+block main
+    h2 Game: #{gameName}
+    canvas(id="canvas" height="704px" width="1024px")
+    script.
+        var myGamename = #{myGamename};
+        var myUsername = #{user.name};

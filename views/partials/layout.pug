@@ -1,0 +1,19 @@
+doctype html
+head
+    meta(charset='UTF-8')
+    title Cache-Cache par Willian Zolnowski
+    link(rel='stylesheet' href='/css/bootstrap.min.css')
+    link(rel='stylesheet' href='/css/style.css')
+    script(src='/socket.io/socket.io.js')
+body
+    include header
+    .container-fluid
+        block main
+    include footer
+    script(src='/lib/jquery.js')
+    script(src='/lib/popper.min.js')
+    script(src='/lib/bootstrap.min.js')
+    if pageTitle === "Game"
+        script(src='/js/client.js')
+    if pageTitle === "Hall des Joueurs"
+        script(src='/js/hall.js')

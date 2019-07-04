@@ -3,33 +3,29 @@ const outils = {
         var inBlockX = Math.floor(player.pos.x/game.carte.tailleBlock);
         var inBlockY = Math.floor(player.pos.y/game.carte.tailleBlock);
         var blockIndex = (inBlockY * game.carte.taille.x) + inBlockX;
-        // console.log("TCL: blockIndex", blockIndex)
         if(player.surBlock !== game.carte.blocks[blockIndex]){ //si block a changé
-            // console.log("block changed!");
             player.blocksAround = outils.getBlocksAround(player, game);
-            // console.log(this.blocksAround);
             player.surBlock.playerIn = null;
             player.surBlock = game.carte.blocks[blockIndex];
             game.carte.blocks[blockIndex].playerIn = player;
 
             if(game.carte.base == player.surBlock && player.playersTrouves.length){
                 outils.killFound(player, game);
-                
             }
         }
     },
     getBlocksAround: function(player, game){
         var inBlockX = Math.floor(player.pos.x/game.carte.tailleBlock);
         var inBlockY = Math.floor(player.pos.y/game.carte.tailleBlock);
-        var b = (inBlockY*game.carte.taille.x) + inBlockX;
-        return [b-game.carte.taille.x-1,
-                b-game.carte.taille.x,
-                b-game.carte.taille.x+1,
-                b-1,
-                b+1,
-                b+game.carte.taille.x-1,
-                b+game.carte.taille.x,
-                b+game.carte.taille.x+1];
+        var b = (inBlockY * game.carte.taille.x) + inBlockX;
+        return [b - game.carte.taille.x - 1,
+                b - game.carte.taille.x,
+                b - game.carte.taille.x + 1,
+                b - 1,
+                b + 1,
+                b + game.carte.taille.x - 1,
+                b + game.carte.taille.x,
+                b + game.carte.taille.x + 1];
     },
     getVisibleBlocks: function(player, game){
         var inBlockX = Math.floor(player.pos.x/game.carte.tailleBlock);
@@ -76,53 +72,39 @@ const outils = {
         }
     },
     checkCollision: function(player, game){
-        // for(var i = 0 ; player.blocksAround[i] ; i++){
-        //     if(carte.blocks[player.blocksAround[i]].type === "mur"){
-        //         carte.blocks[player.blocksAround[i]].path();
-        //         if(ctx.isPointInPath(player.pos.x, player.pos.y)
-        //     }
-        // }
-
-        
-        // for(var angle = 0 ; angle <= 360 ; angle++){
-        //     var x = player.pos.x + (player.radius * Math.sin( angle * Math.PI/180 ));
-        //     var y = player.pos.y + (player.radius * Math.cos( angle * Math.PI/180 ));
-            
-            for(var i = 0 ; player.blocksAround[i] ; i++){
-                if( game.carte.blocks[player.blocksAround[i]].type === "mur" || (game.carte.blocks[player.blocksAround[i]].type === "sol" && game.carte.blocks[player.blocksAround[i]].playerIn) ){
-                    var block = game.carte.blocks[player.blocksAround[i]];
-                    if(i === 1){ // top block
-                        while(player.pos.x >= block.x * block.taille &&
-                            player.pos.x <= block.x * block.taille + block.taille && 
-                            player.pos.y - player.radius < block.y * block.taille + block.taille){
-                                player.pos.y++;
-                        };
-                    }
-                    if(i === 6){ //bottom block
-                        while(player.pos.x >= block.x * block.taille &&
-                            player.pos.x <= block.x * block.taille + block.taille && 
-                            player.pos.y + player.radius > block.y * block.taille){
-                                player.pos.y--;
-                        };
-                    }
-                    if(i === 3){ //left block
-                        while(player.pos.y >= block.y * block.taille &&
-                            player.pos.y <= block.y * block.taille + block.taille && 
-                            player.pos.x - player.radius < block.x * block.taille + block.taille){
-                                player.pos.x++;
-                        };
-                    }
-                    if(i === 4){ //right block
-                        while(player.pos.y >= block.y * block.taille &&
-                            player.pos.y <= block.y * block.taille + block.taille && 
-                            player.pos.x + player.radius > block.x * block.taille){
-                                player.pos.x--;
-                        };
-                    }
+        for(var i = 0 ; i < player.blocksAround.length ; i++){
+            if( game.carte.blocks[player.blocksAround[i]].type === "mur" || (game.carte.blocks[player.blocksAround[i]].type === "sol" && game.carte.blocks[player.blocksAround[i]].playerIn) ){
+                var block = game.carte.blocks[player.blocksAround[i]];
+                if(i === 1){ // top block
+                    while(player.pos.x >= block.x * block.taille &&
+                        player.pos.x <= block.x * block.taille + block.taille && 
+                        player.pos.y - player.radius < block.y * block.taille + block.taille){
+                            player.pos.y++;
+                    };
+                }
+                if(i === 6){ //bottom block
+                    while(player.pos.x >= block.x * block.taille &&
+                        player.pos.x <= block.x * block.taille + block.taille && 
+                        player.pos.y + player.radius > block.y * block.taille){
+                            player.pos.y--;
+                    };
+                }
+                if(i === 3){ //left block
+                    while(player.pos.y >= block.y * block.taille &&
+                        player.pos.y <= block.y * block.taille + block.taille && 
+                        player.pos.x - player.radius < block.x * block.taille + block.taille){
+                            player.pos.x++;
+                    };
+                }
+                if(i === 4){ //right block
+                    while(player.pos.y >= block.y * block.taille &&
+                        player.pos.y <= block.y * block.taille + block.taille && 
+                        player.pos.x + player.radius > block.x * block.taille){
+                            player.pos.x--;
+                    };
                 }
             }
-        //}
-        
+        }
     },
     checkIfFound: function(player, game, socket){
         let playersFound = [];
@@ -133,8 +115,9 @@ const outils = {
                     pos: {x: playerFound.pos.x, y: playerFound.pos.y},
                     radius: playerFound.radius,
                     role: playerFound.role,
-                    id: playerFound.id
-                })
+                    name: playerFound.name,
+                    color: playerFound.color,
+                });
                 
                 if(player.role === "chasseur" && !game.carte.blocks[player.blocksVisibles[i]].playerIn.trouve){
                     // console.log("Trouvé !!!");

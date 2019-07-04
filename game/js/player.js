@@ -1,6 +1,8 @@
 const Player = (function(){
-    let newPlayer = function (id, role, x, y, radius, sauteDistance, speed){
-        this.id = id;
+    let newPlayer = function (name, role, x, y, radius, sauteDistance, speed, socketId , color){
+        this.name = name;
+        this.socket = socketId;
+        this.color = color;
         this.role = role;
         this.pos = {x: x, y:y};
         this.radius = radius;
@@ -16,7 +18,7 @@ const Player = (function(){
         this.direction = "up";
     };
     newPlayer.prototype.draw = function(){
-            ctx.fillStyle = "blue";
+            ctx.fillStyle = this.color;
             ctx.beginPath();
             ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2, true);
             ctx.closePath();
@@ -43,8 +45,8 @@ const Player = (function(){
     //     }
     // };
 
-    return function(id, role, x, y, radius, sauteDistance, speed){
-        return new newPlayer(id, role, x, y, radius, sauteDistance, speed);
+    return function(id, role, x, y, radius, sauteDistance, speed, socketId , color){
+        return new newPlayer(id, role, x, y, radius, sauteDistance, speed, socketId , color);
     }
 }());
 

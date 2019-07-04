@@ -1,3 +1,4 @@
+
 var gameLoop = function(){
 
     //reinitialize map

@@ -25,8 +25,13 @@
   },
   "homepage": "https://github.com/Willian27Z/cache-cache#readme",
   "dependencies": {
+    "bootstrap": "^4.3.1",
+    "connect-mongo": "^3.0.0",
+    "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
-    "session": "^0.1.0",
+    "express-session": "^1.16.2",
+    "mongodb": "^3.2.7",
+    "pug": "^2.0.4",
     "socket.io": "^2.2.0"
   }
 }

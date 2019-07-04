@@ -1,0 +1,23 @@
+extends partials/layout
+
+block main
+    if message.type === "error"
+        .alert.alert-danger.mt-md-3(role='alert') #{message.text}
+    if message.type === "success"
+        .alert.alert-success.mt-md-3(role='alert') #{message.text}
+    .row.m-sm-3
+        .col-4
+            .row.m-sm-3
+                h2(align="center") Joueurs en attente:
+                ul#joueurs.list-group.overflow-auto(style='width:100%')
+            .row.m-sm-3
+                h2(align="center") Joueurs en Jeu:
+                ul#joueursEnJeux.list-group.overflow-auto(style='width:100%')
+        .col-8
+            .row.m-sm-3.overflow-auto
+                h2(align="center") Jeux en Cours/Attente :
+                #gamesList.accordion(style='width:100%')
+    script.
+        var myUsername = "#{user.name}";
+
+                    

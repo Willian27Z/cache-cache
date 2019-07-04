@@ -17,17 +17,14 @@ var game = {
     },
     player: {
         id: null,
+        color: null,
         role: null,
         pos: null,
         blocksVisibles: [],
         radius: null,
         playersTrouves: [],
         draw: function(){
-            if(this.role === "chasseur"){
-                ctx.fillStyle = "blue";
-            } else {
-                ctx.fillStyle = "green";
-            }
+            ctx.fillStyle = this.color;
             ctx.beginPath();
             ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2, true);
             ctx.closePath();
@@ -64,11 +61,7 @@ var gameLoop = function(){
     }
 
     for(var i = 0 ; game.player.playersTrouves[i]; i++){
-        if(game.player.playersTrouves[i].role === "chasseur"){
-            ctx.fillStyle = "blue";
-        } else {
-            ctx.fillStyle = "green";
-        }
+        ctx.fillStyle = game.player.playersTrouves[i].color;
         ctx.beginPath();
         ctx.arc(game.player.playersTrouves[i].pos.x, game.player.playersTrouves[i].pos.y, game.player.playersTrouves[i].radius, 0, Math.PI * 2, true);
         ctx.closePath();
@@ -147,7 +140,6 @@ var Block = (function(){
         // this.cachable = cachable; //boolean
     };
     OneBlock.prototype.draw = function(){
-        // ctx.rect(this.x*taille, this.y*taille, this.taille, this.taille);
         if(this.type === "mur"){
             ctx.fillStyle = "brown";
         } else {
@@ -172,7 +164,6 @@ var Block = (function(){
     // }
     OneBlock.prototype.flashBase = function(){
         this.flashing = setInterval(function(){
-            // console.log("blip");
             if(game.carte.base.baseColor === "orange"){
                 game.carte.base.baseColor = "red";
             } else {
@@ -188,78 +179,11 @@ var Block = (function(){
 
 var addEventListeners = function(){
     window.addEventListener("keydown", function(event){
-        //send event to server
-        var key = event.key;
-        socket.emit("move", key);
-        // if(key === "ArrowRight"){
-        //     if(player.direction !== "right" || player.moving === null) {
-        //         clearInterval(player.moving);
-        //         player.moving = setInterval(function(){
-        //             player.pos.x += 1;
-        //         }, player.speed);
-        //         player.direction = "right";
-        //     };
-        // };
-        // if(key === "ArrowLeft") {
-        //     if(player.direction !== "left" || player.moving === null) {
-        //         clearInterval(player.moving);
-        //         player.moving = setInterval(function(){
-        //             player.pos.x -= 1;
-        //         }, player.speed);
-        //         player.direction = "left";
-        //     };
-        // };
-        // if(key === "ArrowDown"){
-        //     if(player.direction !== "down" || player.moving === null) {
-        //         clearInterval(player.moving);
-        //         player.moving = setInterval(function(){
-        //             player.pos.y += 1;
-        //         }, player.speed);
-        //         player.direction = "down";
-        //     };
-        // };
-        // if(key === "ArrowUp") {
-        //     if(player.direction !== "up" || player.moving === null) {
-        //         clearInterval(player.moving);
-        //         player.moving = setInterval(function(){
-        //             player.pos.y -= 1;
-        //         }, player.speed);
-        //         player.direction = "up";
-        //     };
-        // };
-        // if(key === " " && player.saute === false && (player.role === "chasseur" || player.found) && player.moving){
-        //     player.saute = true;
-        //     if(player.direction === "right" && carte.blocks[player.blocksAround[4]].type !== "mur"){
-        //         player.pos.x += player.sauteDistance;
-        //     }
-        //     if(player.direction === "left" && carte.blocks[player.blocksAround[3]].type !== "mur"){
-        //         player.pos.x -= player.sauteDistance;
-        //     }
-        //     if(player.direction === "up" && carte.blocks[player.blocksAround[1]].type !== "mur"){
-        //         player.pos.y -= player.sauteDistance;
-        //     }
-        //     if(player.direction === "down" && carte.blocks[player.blocksAround[6]].type !== "mur"){
-        //         player.pos.y += player.sauteDistance;
-        //     }
-        // }
+        socket.emit("move", event.key);
     });
     
     window.addEventListener("keyup", function(event){
-        //send event to server
-        var key = event.key;
-        socket.emit("stop", key)
-        // if((key === "ArrowRight" && player.direction === "right") ||
-        //    (key === "ArrowLeft" && player.direction === "left") || 
-        //    (key === "ArrowDown" && player.direction === "down") ||
-        //    (key === "ArrowUp" && player.direction === "up")
-        //  ){
-        //     clearInterval(player.moving);
-        //     player.moving = null;
-        //     // player.direction = null;
-        // };
-        // if( key === " " ){
-        //     player.saute = false;
-        // }
+        socket.emit("stop", event.key);
     });
 }
 
@@ -267,7 +191,10 @@ window.document.addEventListener("DOMContentLoaded", function () {
     socket = io("http://192.168.106.118:2727");
 
     socket.on("connect", function(){
-        console.log("connected");
+        console.log("client connected");
+        
+        socket.emit("game", {username: myUsername, gameName: myGamename});
+
         socket.on("gameStarted", function(gameData){
             console.log(gameData);
             game.id = gameData.gameID;
@@ -276,6 +203,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
             game.player.radius = gameData.player.radius;
             game.player.blocksVisibles = gameData.player.blocksVisibles;
             game.player.role = gameData.player.role;
+            game.player.color = gameData.player.color;
             //get map and charge locally
             $.getJSON("/maps/map1.json", function( mapData ) {
                 var mapLoaded = mapData;

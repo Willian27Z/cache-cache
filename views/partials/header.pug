@@ -1,0 +1,24 @@
+header
+    nav.navbar.navbar-expand-sm.navbar-dark.bg-dark
+        a.navbar-brand(href='/') BlogWill
+        button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
+            span.navbar-toggler-icon
+        #navbarSupportedContent.collapse.navbar-collapse
+            ul.navbar-nav.mr-auto
+                li.nav-item
+                    a.nav-link(href='/')
+                        | Accueil
+                li.nav-item
+                    a.nav-link(href='/hall') 
+                        | Hall des Joueurs
+                li.nav-item
+                    a.nav-link(href='/game/1') 
+                        | Le Jeu
+            form.form-inline.my-2.my-lg-0
+                if pageTitle === "Hall des Joueurs"
+                    a.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true') Welcome #{user.name}
+                    a.btn.btn-outline-secondary.my-2.my-sm-0.mr-md-3(href='/logout') Deconnecter
+                if pageTitle === "Game"
+                    a.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true') Game: #{gameName}
+                if pageTitle === "Game"
+                    a.btn.btn-danger.my-2.my-sm-0.mr-md-3(href='/hall') Sortir du Jeu

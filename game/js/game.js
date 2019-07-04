@@ -3,8 +3,11 @@ const Player = require("./player.js");
 
 
 const GameSession = (function(){
-    let newGame = function() {
-        this.id = Math.floor(Math.random()*1000);
+    let newGame = function(name, map, maxPlayers, host) {
+        this.name = name;
+        this.map = map;
+        this.maxPlayers = maxPlayers;
+        this.host = host;
         this.carte = {
             blocks: [],
             taille: {x: null, y: null},
@@ -15,7 +18,8 @@ const GameSession = (function(){
         this.players = [];
     };
 
-    newGame.prototype.drawMap = function(map, tileset){
+    newGame.prototype.drawMap = function(tileset){
+        let map = this.map;
         this.carte.taille.x = map.width;
         this.carte.taille.y = map.height;
         this.carte.tailleBlock = map.tileheight;
@@ -69,10 +73,11 @@ const GameSession = (function(){
     newGame.prototype.addPlayer = function(id, role, x, y, radius, sauteDistance, speed){
         let newPlayer = Player(id, role, x, y, radius, sauteDistance, speed)
         this.players.push(newPlayer);
+        return newPlayer;
     }
 
-    return function(){
-        return new newGame();
+    return function(name, map, maxPlayers, host){
+        return new newGame(name, map, maxPlayers, host);
     }
 }());
 
