@@ -2,6 +2,7 @@ const Player = (function(){
     let newPlayer = function (name, role, x, y, radius, sauteDistance, speed, socketId , color){
         this.name = name;
         this.socket = socketId;
+        this.done = false;
         this.color = color;
         this.role = role;
         this.pos = {x: x, y:y};

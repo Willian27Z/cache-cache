@@ -1,5 +1,5 @@
 var MongoClient = require('mongodb').MongoClient;
-const uri = "mongodb+srv://admin:G5JYxQAEzOqzrlTa@cache-cache-o1uzn.gcp.mongodb.net/test?retryWrites=true&w=majority";
+const uri = "mongodb+srv://admin:G5JYxQAEzOqzrlTa@cache-cache-o1uzn.gcp.mongodb.net/jeuback?retryWrites=true&w=majority";
 var state = {
   db: null,
 };

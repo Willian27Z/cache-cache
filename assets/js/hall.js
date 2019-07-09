@@ -1,11 +1,16 @@
 window.document.addEventListener("DOMContentLoaded", function () {
-    socket = io("http://192.168.106.118:2727");
+    socket = io("http://192.168.1.10:2727");
 
     socket.on("connect", function(){
         socket.emit("hall", myUsername);
 
+        /******************************* 
+        *********ON CONNECTION**********
+        *******************************/
+
         socket.on("games list", function(gamesList){
-        // console.log("TCL: gamesList", gamesList)
+            $("#gamesList").empty();
+            // console.log("TCL: gamesList", gamesList)
             // game = {
             //     name: "",
             //     players: [{name: "", color: ""}]
@@ -101,7 +106,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
         });
 
         socket.on("connected players", function(playersConnected){
-        console.log("TCL: playersConnected", playersConnected)
+            $("#joueurs").empty();
+            $("#joueursEnJeux").empty();
+            // console.log("TCL: playersConnected", playersConnected)
             var joueurs = $("#joueurs");
             var joueursEnJeu = $("#joueursEnJeux");
             var liJoueur;
@@ -110,62 +117,54 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 //Creates list item and adds to the right place
                 liJoueur = $("<li class='list-group-item' id='" + playersConnected[i].name + "'>").text(playersConnected[i].name)
                 if(playersConnected[i].in === "hall"){
-                    joueurs.append(liJoueur)
 
                     if(playersConnected[i].joined){
-                        //Add player name to chair
-                        var chair = $("#" + playersConnected[i].joined + " > ." + playersConnected[i].gameChair).value(playersConnected[i].name)
-    
-                        //if joined change to yellow
-                        if(playersConnected[i].ready){
-                            chair.addClass("bg-warning");
-                        } else {
-                            chair.addClass("bg-primary");
-                        }
 
-                        //remove button
-                        $("#" + playersConnected[i].joined + " > ." + playersConnected[i].gameChair + " > button").remove();
+                        //change chair background
+                        $("div[id*='" + playersConnected[i].joined + "'] > div > div[class*='gameChair" + playersConnected[i].gameChair + "']").addClass("bg-primary");
+
+                        //change chair name
+                        $("div[id*='" + playersConnected[i].joined + "'] > div > div[class*='gameChair" + playersConnected[i].gameChair + "'] >  div[class*='card-body'] > h5").text(playersConnected[i].name);
+
+                        //hides the join button
+                        $("div[id*='" + playersConnected[i].joined  + "'] > div > div[class*='gameChair" + playersConnected[i].gameChair + "'] >  div[class*='card-body'] > button").css("display", "none");
+                        liJoueur.addClass("bg-primary");
+                        liJoueur.text(playersConnected[i].name + " (" + playersConnected[i].joined + ")");
                     }
-
+                    
+                    joueurs.append(liJoueur)
                 } else {
+                    liJoueur.addClass("bg-success");
                     joueursEnJeu.append(liJoueur);
-
-                    var chair = $("#" + playersConnected[i].joined + " > ." + playersConnected[i].gameChair).value(playersConnected[i].name).addClass("bg-success");
-
                 }
             }
+            emit.initiated = true;
         });
         
+        /******************************* 
+        **********HALL ACTIONS**********
+        *******************************/
+
         socket.on("player entered", function(user){
+            console.log(user.name + " entered the hall");
             //Creates list item and adds to the right place
-            liJoueur = $("<li class='list-group-item' id='" + user.name + "'>").text(user.name)
+            var joueurs = $("#joueurs");
+            var joueursEnJeu = $("#joueursEnJeux");
+            var liJoueur = $("<li class='list-group-item' id='" + user.name + "'>").text(user.name)
             if(user.in === "hall"){
-                joueurs.append(liJoueur)
-
-                if(user.joined){
-                    //Add player name to chair
-                    var chair = $("#" + user.joined + " > ." + user.gameChair).value(user.name)
-
-                    //if joined change to yellow
-                    if(user.ready){
-                        chair.addClass("bg-warning");
-                    } else {
-                        chair.addClass("bg-primary");
-                    }
-
-                    //remove button
-                    $("#" + user.joined + " > ." + user.gameChair + " > button").remove();
-                }
-
+                // console.log($("li[id*='" + user.name + "']"));
+                if(!$("li[id*='" + user.name + "']").length){
+                    joueurs.append(liJoueur);
+                }   
             } else {
                 var text = user.name + " (" + user.joined + ")";
-                liJoueur.text(text);
+                liJoueur.text(text).addClass("bg-success");
                 joueursEnJeu.append(liJoueur);
             }
         });
-        socket.on("game created", function(gameName){
+        // socket.on("game created", function(gameName){
     
-        });
+        // });
         socket.on("player joined", function(info){
             console.log("somebody joined!");
             // info.gameName
@@ -181,7 +180,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
             //change chair background
             $("div[id*='" + info.gameName + "'] > div > div[class*='gameChair" + info.gameChair + "']").addClass("bg-primary");
 
-            //removes the join button
+            //hides the join button
             $("div[id*='" + info.gameName + "'] > div > div[class*='gameChair" + info.gameChair + "'] >  div[class*='card-body'] > button").css("display", "none");
             
             //if you're the player who joined
@@ -190,9 +189,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 $("button[name='joindre']").css("display", "none");
 
                 //adds ready and quit buttons
-                var ready = $('<button class="btn btn-warning" type="button" onClick="emit.ready(' + info.gameChair + ', \'' + info.gameName + '\');" align="center" name="ready">').text("Prêt(e)");
+                // var ready = $('<button class="btn btn-warning" type="button" onClick="emit.ready(' + info.gameChair + ', \'' + info.gameName + '\');" align="center" name="ready">').text("Prêt(e)");
                 var quit = $('<button class="btn btn-danger" type="button" onClick="emit.quit(' + info.gameChair + ', \'' + info.gameName + '\');" align="center" name="quit">').text("Sortir");
-                $("div[id*='" + info.gameName + "'] > div > div[class*='gameChair" + info.gameChair + "'] >  div[class*='card-body']").append(ready).append(quit);
+                $("div[id*='" + info.gameName + "'] > div > div[class*='gameChair" + info.gameChair + "'] >  div[class*='card-body']").append(quit);
             }
 
             //change player list background and text
@@ -213,13 +212,24 @@ window.document.addEventListener("DOMContentLoaded", function () {
             //change chair background
             $("div[id*='" + info.gameName + "'] > div > div[class*='gameChair" + info.gameChair + "']").removeClass("bg-primary bg-warning");
 
-            //adds the join button
-            $("div[id*='" + info.gameName + "'] > div > div[class*='gameChair" + info.gameChair + "'] >  div[class*='card-body'] > button").css("display", "inline");
+            //adds the join button if not joined yet
+            if(!emit.joined){
+                $("div[id*='" + info.gameName + "'] > div > div[class*='gameChair" + info.gameChair + "'] >  div[class*='card-body'] > button").css("display", "inline");
+            }
 
-            //if you're the player who joined
+            //if you're the player who quit
             if(info.playerName === myUsername){
-                $("button[name='joindre']").css("display", "inline");
-
+                $("h5").each(function(index){
+                    // console.log($(this));
+                    if($(this).text() === "Libre"){
+                        $(this.nextSibling.nextSibling).css("display", "inline");
+                        //style.display = "inline";
+                    }
+                });
+                //if you were the hunter and was ready to launch
+                if(info.gameChair === 1 && $("button[name='launch']").length){
+                    $("button[name='launch']").remove();
+                }
             }
 
             //shows all other join buttons
@@ -229,7 +239,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
 
             //removes buttons
             if(info.playerName === myUsername){
-                $(("button[name='ready']")).remove();
+                // $(("button[name='ready']")).remove();
                 $(("button[name='quit']")).remove();
             }
 
@@ -237,48 +247,98 @@ window.document.addEventListener("DOMContentLoaded", function () {
             $("li[id*='" + info.playerName + "']").removeClass("bg-primary bg-warning").text(info.playerName);
 
         });
-        socket.on("player ready", function(info){
-            info.gameName
-            info.playerName
+        socket.on("player disconnected", function(user){
+            console.log("somebody quit!");
+            // info.gameName
+            // info.playerName
+            // info.gameChair div[id*='man']
+
+            //removes li
+            $("li[id*='" + user.name + "']").remove();
+
+            if(user.joined){
+                
+                //change chair background
+                $("div[id*='" + user.joined + "'] > div > div[class*='gameChair" + user.gameChair + "']").removeClass("bg-primary bg-warning");
+                
+                //change chair name
+                let selector = "div[id*='" + user.joined + "'] > div > div[class*='gameChair" + user.gameChair + "'] >  div[class*='card-body'] > h5";
+                $(selector).text("Libre");
+
+                //put join button again
+                $("div[id*='" + user.joined + "'] > div > div[class*='gameChair" + user.gameChair + "'] >  div[class*='card-body'] > button").css("display", "inline");
+            }
         });
+
+
+        // socket.on("player ready", function(info){
+        //     info.gameName
+        //     info.playerName
+        // });
+
+
+        /******************************* 
+        ******TRANSITION TO GAME********
+        *******************************/
+
+        socket.on("can launch", function(gameName){
+            console.log("You can launch game: " + gameName)
+            var lancer = $('<button class="btn btn-success" type="button" onClick="emit.launch(\'' + gameName + '\');" align="center" name="launch">').text("Lancer");
+            //adds button
+            $("div[id*='" + gameName + "'] > div > div[class*='gameChair1'] >  div[class*='card-body']").append(lancer);
+        });
+
+        socket.on("cannot launch", function(data){
+            if($("button[name*='launch'").length){
+                $("button[name*='launch'").remove();
+            }
+        });
+
         socket.on("game launched", function(gameName){
-            //remove buttons
-            $("#" + gameName + " > button").forEach(function(button){
-                button.remove();
-            });
-            //change backgrounds
-            $("#" + gameName + " > .card.d-inline-flex").forEach(function(card){
-                card.removeClass("bg-warning bg-primary");
-                card.addClass("bg-success");
-            })
+            // //remove buttons
+            // $("#" + gameName + " button").remove();
+            // //change backgrounds
+            // $("#" + gameName + " > .card.d-inline-flex").each(function(card){
+            //     card.removeClass("bg-warning bg-primary");
+            //     card.addClass("bg-success");
+            // })
         });
         socket.on("go to game", function(gameName){
-    
+            var path = encodeURIComponent(gameName);
+            var domain = document.referrer;
+            console.log(domain + path);
+            window.location.href = "http://192.168.1.10:2727/game/" + path;
         });
+        
 
     });
 
 });
 
 var emit = {
+    joined: false,
+    gameChair: null,
     join: function(gameChair, gameName){
+        this.joined = true;
+        this.gameChair = gameChair
         socket.emit("join game", {
             gameName: gameName,
             gameChair: gameChair,
         });
     },
-    ready: function(gameChair, gameName){
-        socket.emit("ready", {
-            gameName: gameName,
-            gameChair: gameChair,
-        });
-    },
+    // ready: function(gameChair, gameName){
+    //     socket.emit("ready", {
+    //         gameName: gameName,
+    //         gameChair: gameChair,
+    //     });
+    // },
     launch: function(gameName){
-        socket.emit("launch", {
-            gameName: gameName,
-        });
+        console.log("launching game: " + gameName);
+        socket.emit("launch", gameName);
     },
     quit: function(gameChair, gameName){
+        this.joined = false;
+        this.gameChair = null;
         socket.emit("quit", {
             gameName: gameName,
             gameChair: gameChair,

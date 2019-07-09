@@ -1,8 +1,46 @@
 extends partials/layout
 
 block main
-    h2 Game: #{gameName}
+    .row
+        .card.d-inline-flex.gameChair1(style='width: 20%;')
+            div.card-img-top.gameChairInGame.blue(width='100%') Libre
+            div.role
+                div.card-subtitle.mb-2(align="center")
+                    span.badge.badge-dark fonction
+                    p En attente
+        .card.d-inline-flex.gameChair2(style='width: 20%;')
+            div.card-img-top.gameChairInGame.green(width='100%') Libre
+            div.role
+                div.card-subtitle.mb-2(align="center")
+                    span.badge.badge-dark fonction
+                    p En attente
+        .card.d-inline-flex.gameChair3(style='width: 20%;')
+            div.card-img-top.gameChairInGame.purple(width='100%') Libre
+            div.role
+                div.card-subtitle.mb-2(align="center")
+                    span.badge.badge-dark fonction
+                    p En attente
+        .card.d-inline-flex.gameChair4(style='width: 20%;')
+            div.card-img-top.gameChairInGame.orange(width='100%') Libre
+            div.role
+                div.card-subtitle.mb-2(align="center")
+                    span.badge.badge-dark fonction
+                    p En attente
+        .card.d-inline-flex.gameChair5(style='width: 20%;')
+            div.card-img-top.gameChairInGame.black(width='100%') Libre
+            div.role
+                div.card-subtitle.mb-2(align="center")
+                    span.badge.badge-dark fonction
+                    p En attente
+        //- .card.d-inline-flex.gameChair5(style='width: 20%;')
+        //-     div.card-img-top.gameChair.black(width='100%')
+        //-     .card-body
+        //-         h5.card-title.playername(align="center") Libre 
+        //-         h6.card-subtitle.mb-2.badge.badge-dark(align="center") Cacheur
+        //-         p.card-text(align="center") Hors-ligne
     canvas(id="canvas" height="704px" width="1024px")
     script.
-        var myGamename = #{myGamename};
-        var myUsername = #{user.name};
+        var myGamename = "#{myGamename}";
+        var myUsername = "#{user.name}";
+        //- var map = #{map};
+        //- var tileset = #{tileset};

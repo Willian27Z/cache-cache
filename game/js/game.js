@@ -7,6 +7,7 @@ const GameSession = (function(){
         this.name = name;
         this.map = map;
         this.maxPlayers = maxPlayers;
+        this.initialized = false;
         this.host = host;
         this.carte = {
             blocks: [],
@@ -16,6 +17,7 @@ const GameSession = (function(){
             departs: []
         };
         this.players = [];
+        this.nextRound = [];
     };
 
     newGame.prototype.drawMap = function(tileset){
@@ -70,8 +72,8 @@ const GameSession = (function(){
             }
         }
     };
-    newGame.prototype.addPlayer = function(id, role, x, y, radius, sauteDistance, speed){
-        let newPlayer = Player(id, role, x, y, radius, sauteDistance, speed)
+    newGame.prototype.addPlayer = function(id, role, x, y, radius, sauteDistance, speed, socketID, color){
+        let newPlayer = Player(id, role, x, y, radius, sauteDistance, speed, socketID, color)
         this.players.push(newPlayer);
         return newPlayer;
     }

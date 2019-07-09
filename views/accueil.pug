@@ -5,9 +5,10 @@ block main
         h1.display-4 Bienvenu à Cache-Cache!
         p.lead
             | Pour jouer ou regarder des matchs, veuillez vous connecter ou s'inscrire. Ne t'inquiète pas, ça ne fait pas mal!
-    .row
-        if message.type === "error"
+    if message.type === "error"
+        .container-fluid
             .alert.alert-danger.mt-md-3(role='alert') #{message.text}
+    .row
         .col-6
             #loginBox.border.border-dark.rounded
                 h1.display-4 Se Connecter

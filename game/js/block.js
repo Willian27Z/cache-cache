@@ -39,14 +39,16 @@ const Block = (function(){
     //     ctx.closePath();
     // }
     OneBlock.prototype.flashBase = function(game){
-        this.flashing = setInterval(function(){
-            // console.log("blip");
-            if(game.carte.base.baseColor === "orange"){
-                game.carte.base.baseColor = "red";
-            } else {
-                game.carte.base.baseColor = "orange";
-            }
-        }, 1000);
+        if(!this.flashing){
+            this.flashing = setInterval(function(){
+                // console.log("blip");
+                if(game.carte.base.baseColor === "orange"){
+                    game.carte.base.baseColor = "red";
+                } else {
+                    game.carte.base.baseColor = "orange";
+                }
+            }, 1000);
+        }
     }
 
     return function(taille, x, y, type, base, depart){

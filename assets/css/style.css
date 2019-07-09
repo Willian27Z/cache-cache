@@ -24,9 +24,19 @@ h2 {
     width: 22px;
     height: 22px;
     display: block;
-    margin-top: 10px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 10px auto;
+}
+.gameChairInGame {
+    /* border-radius: 50%; */
+    width: 100%;
+    /* height: 22px; */
+    display: block;
+    /* margin: 10px auto; */
+    color: white;
+    text-align: center;
+}
+.role{
+    padding-top: 10px;
 }
 .blue {
     background: blue;
@@ -38,7 +48,7 @@ h2 {
     background: purple;
 }
 .orange {
-    background: orange;
+    background: darkorange;
 }
 .black {
     background: black;
