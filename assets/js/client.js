@@ -110,7 +110,7 @@ var gameLoop = function(){
         ctx.fillRect(0, 0, 1024, 704);
         ctx.fillStyle = "white";
         ctx.font = "48px Comic Sans";
-        ctx.fillText("Partie Finit! Prochain partie dans... " + game.restarting, 300, 304);
+        ctx.fillText("Partie Finit! Prochain partie dans... " + game.restarting, 150, 304);
     }
 
     window.requestAnimationFrame(gameLoop);
@@ -305,10 +305,10 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='gameChairInGame']").text("Libre");
 
                 //Change role
-                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Chasseur").removeClass("badge-primary").addClass("badge-dark");
+                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("hors ligne").removeClass("badge-primary").addClass("badge-dark");
 
                 //change status
-                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > p").text("Hors-ligne");
+                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > p").text("Quitté");
             }
         });
 

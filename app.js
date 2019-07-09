@@ -400,7 +400,7 @@ ioServer.on("connection", function(socket){
             ioServer.emit("player quit", {gameName: data.gameName, playerName: user.name, gameChair: data.gameChair})
             if(!outils.isGameReady(currentGame)){
                 console.log("Game " + data.gameName + " is not ready yet!");
-                if(!outils.hunterSocket(currentGame)){
+                if(outils.hunterSocket(currentGame)){
                     outils.hunterSocket(currentGame).emit("cannot launch", data.gameName);
                 }
             }

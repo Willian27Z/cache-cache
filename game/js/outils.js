@@ -24,7 +24,12 @@ const outils = {
     getBlocksAround: function(player, game){
         var inBlockX = Math.floor(player.pos.x/game.carte.tailleBlock);
         var inBlockY = Math.floor(player.pos.y/game.carte.tailleBlock);
-        var b = (inBlockY * game.carte.taille.x) + inBlockX;
+        var b = (inBlockY * game.carte.taille.x) + inBlockX; //reference block
+        /*  blocks around (index)
+            0 | 1 | 2
+            3 | b | 4
+            5 | 6 | 7
+        */
         return [b - game.carte.taille.x - 1,
                 b - game.carte.taille.x,
                 b - game.carte.taille.x + 1,
@@ -325,18 +330,18 @@ const outils = {
                 player.direction = "up";
             };
         };
-        if(key === " " && player.saute === false && (player.role === "chasseur" || player.found) && player.moving){
+        if(key === " " && player.saute === false && (player.role === "chasseur" || player.trouve) && player.moving){
             player.saute = true;
-            if(player.direction === "right" && game.carte.blocks[player.blocksAround[4]].type !== "mur"){
+            if(player.direction === "right" && game.carte.blocks[player.blocksAround[4]].type !== "mur" && !game.carte.blocks[player.blocksAround[4]].playerIn){
                 player.pos.x += player.sauteDistance;
             }
-            if(player.direction === "left" && game.carte.blocks[player.blocksAround[3]].type !== "mur"){
+            if(player.direction === "left" && game.carte.blocks[player.blocksAround[3]].type !== "mur" && !game.carte.blocks[player.blocksAround[3]].playerIn){
                 player.pos.x -= player.sauteDistance;
             }
-            if(player.direction === "up" && game.carte.blocks[player.blocksAround[1]].type !== "mur"){
+            if(player.direction === "up" && game.carte.blocks[player.blocksAround[1]].type !== "mur" && !game.carte.blocks[player.blocksAround[1]].playerIn){
                 player.pos.y -= player.sauteDistance;
             }
-            if(player.direction === "down" && game.carte.blocks[player.blocksAround[6]].type !== "mur"){
+            if(player.direction === "down" && game.carte.blocks[player.blocksAround[6]].type !== "mur" && !game.carte.blocks[player.blocksAround[6]].playerIn){
                 player.pos.y += player.sauteDistance;
             }
         }
