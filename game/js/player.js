@@ -17,6 +17,9 @@ const Player = (function(){
         this.score = 0;
         this.moving = null;
         this.direction = "up";
+        this.spriteTiming = null;
+        this.nextSprite = true;
+        this.currentSprite = 1;
     };
     newPlayer.prototype.draw = function(){
             ctx.fillStyle = this.color;

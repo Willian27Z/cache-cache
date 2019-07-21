@@ -1,7 +1,7 @@
 /******************************* 
 ********GLOBAL VARIABLES********
 *******************************/
-
+var serverAddress = "http://92.170.146.99/"
 var canvas = document.getElementById("canvas");
 var ctx;
 if (canvas.getContext) {
@@ -17,7 +17,8 @@ var game = {
         taille: {x: null, y: null},
         tailleBlock: null,
         base: {},
-        departs: []
+        departs: [],
+        image: null
     },
     player: {
         score: 0,
@@ -29,13 +30,42 @@ var game = {
         blocksVisibles: [],
         radius: null,
         playersSeen: [],
+        dir: "up",
+        gameChair: null,
+        image: null,
+        currentSprite: 1,
         draw: function(){
+            ctx.drawImage(
+                game.player.image,
+                game.sprites[game.player.dir][game.player.currentSprite][0],
+                game.sprites[game.player.dir][game.player.currentSprite][1],
+                game.sprites.width,
+                game.sprites.height,
+                game.player.pos.x - game.sprites.width / 2,
+                game.player.pos.y - game.player.radius * 2,
+                game.sprites.width,
+                game.sprites.height,
+            );
+            
+            
+            /* OLD WAY
             ctx.fillStyle = this.color;
             ctx.beginPath();
             ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.fill();
+            */
         },
+    },
+    sprites: {
+        images: ["this 0 index is for the sprite image to correspond to the player's gameChair"],
+        width: 24,
+        height: 32,
+        profile: [84,4,62,67],
+        up: [[0,0],[24,0],[48,0]],
+        right: [[0,32],[24,32],[48,32]],
+        down: [[0,64],[24,64],[48,64]],
+        left: [[0,96],[24,96],[48,96]]
     },
     spectateur: [],
     restarting: null
@@ -80,22 +110,50 @@ var gameLoop = function(){
     //drawing visible opponents
     if(!game.player.done){
         for(var i = 0 ; game.player.playersSeen[i]; i++){
+            /*
             ctx.fillStyle = game.player.playersSeen[i].color;
             ctx.beginPath();
             ctx.arc(game.player.playersSeen[i].pos.x, game.player.playersSeen[i].pos.y, game.player.playersSeen[i].radius, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.fill();
+            */
+
+            ctx.drawImage(
+                game.sprites.images[game.player.playersSeen[i].gameChair],
+                game.sprites[game.player.playersSeen[i].dir][game.player.playersSeen[i].currentSprite][0],
+                game.sprites[game.player.playersSeen[i].dir][game.player.playersSeen[i].currentSprite][1],
+                game.sprites.width,
+                game.sprites.height,
+                game.player.playersSeen[i].pos.x - game.sprites.width / 2,
+                game.player.playersSeen[i].pos.y - game.player.playersSeen[i].radius * 2,
+                game.sprites.width,
+                game.sprites.height,
+            );
         }
     }
 
     //drawing all players if spectateur mode
     for(var i = 0 ; i < game.spectateur.length; i++){
         if(game.spectateur[i].name !== game.player.id){
+            /*
             ctx.fillStyle = game.spectateur[i].color;
             ctx.beginPath();
             ctx.arc(game.spectateur[i].pos.x, game.spectateur[i].pos.y, game.spectateur[i].radius, 0, Math.PI * 2, true);
             ctx.closePath();
             ctx.fill();
+            */
+
+            ctx.drawImage(
+                game.sprites.images[game.spectateur[i].gameChair],
+                game.sprites[game.spectateur[i].dir][game.spectateur[i].currentSprite][0],
+                game.sprites[game.spectateur[i].dir][game.spectateur[i].currentSprite][1],
+                game.sprites.width,
+                game.sprites.height,
+                game.spectateur[i].pos.x - game.sprites.width / 2,
+                game.spectateur[i].pos.y - game.spectateur[i].radius * 2,
+                game.sprites.width,
+                game.sprites.height,
+            );
         }
     }
     
@@ -133,6 +191,7 @@ var drawMap = function(map, tileset){
         //trouver les propriétés du block
         var base = false;
         var depart = false;
+        var imageIndex = map.layers[0].data[i]-1;
         for(var t = 0 ; tileset.tiles[t] ; t++){
             if( tileset.tiles[t].id === (map.layers[0].data[i]-1) ){ //les id match
                 var properties = tileset.tiles[t].properties;
@@ -163,7 +222,7 @@ var drawMap = function(map, tileset){
         }
 
         //creates the new block and assigns it to Carte
-        var newBlock = Block(taille, posX, posY, type, base, depart);
+        var newBlock = Block(taille, posX, posY, type, imageIndex, base, depart);
         game.carte.blocks.push(newBlock);
         if(base){
             game.carte.base = newBlock;
@@ -175,11 +234,12 @@ var drawMap = function(map, tileset){
 };
 
 var Block = (function(){
-    var OneBlock = function(taille, x, y, type, base, depart){
+    var OneBlock = function(taille, x, y, type, imageIndex, base, depart){
         this.taille = taille; //taille du carre en pixel
         this.x = x; //coordonnées dans la carte
         this.y = y;
         this.type = type; //string "mur" ou "sol" 
+        this.imageIndex = imageIndex //number
         this.playerIn = null; //sera populé in runtime, reference à un joueur
         // this.image = urlImage; //string
         this.base = base; //boolean
@@ -188,6 +248,7 @@ var Block = (function(){
         // this.cachable = cachable; //boolean
     };
     OneBlock.prototype.draw = function(){
+        /* BASIC DRAWING
         if(this.type === "mur"){
             ctx.fillStyle = "brown";
         } else {
@@ -200,6 +261,19 @@ var Block = (function(){
             }
         }
         ctx.fillRect(this.x*this.taille, this.y*this.taille, this.taille, this.taille);
+        */
+        // IMAGE DRAWING
+        var sourceX;
+        var sourceY;
+        if(this.imageIndex < tileset.columns){
+            sourceX = this.imageIndex * this.taille;
+            sourceY = 0;
+        } else {
+            sourceX = (this.imageIndex % tileset.columns) * this.taille;
+            sourceY = Math.floor(this.imageIndex / tileset.columns) * this.taille;
+        }
+
+        ctx.drawImage(game.carte.image, sourceX, sourceY, this.taille, this.taille, this.x * this.taille, this.y * this.taille, this.taille, this.taille)
     },
     // OneBlock.prototype.drawAgain = function(){
     //     ctx.fillStyle = "green";
@@ -222,8 +296,8 @@ var Block = (function(){
         }
     }
 
-    return function(taille, x, y, type, base, depart){
-        return new OneBlock(taille, x, y, type, base, depart);
+    return function(taille, x, y, type, imageIndex, base, depart){
+        return new OneBlock(taille, x, y, type, imageIndex, base, depart);
     }
 }());
 
@@ -244,7 +318,7 @@ var Block = (function(){
 
 
 window.document.addEventListener("DOMContentLoaded", function () {
-    socket = io("http://192.168.1.10:2727");
+    socket = io(serverAddress);
 
     socket.on("connect", function(){
         console.log("client connected");
@@ -267,9 +341,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
 
                     //change role
                     if(playersConnected[i].role === "chasseur") {
-                        $("div[class*='gameChair" + playersConnected[i].gameChair + "'] >  div[class*='role'] > div > span").text("Chasseur").removeClass("badge-dark").addClass("badge-primary");
+                        $("div[class*='gameChair" + playersConnected[i].gameChair + "'] >  div[class*='role'] > div > span").text("Chasseur").removeClass("badge-light").addClass("badge-primary");
                     } else {
-                        $("div[class*='gameChair" + playersConnected[i].gameChair + "'] >  div[class*='role'] > div > span").text("Cacheur")
+                        $("div[class*='gameChair" + playersConnected[i].gameChair + "'] >  div[class*='role'] > div > span").text("Cacheur").removeClass("badge-light").addClass("badge-dark");
                     }
                     
                     //change status
@@ -287,9 +361,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
 
                 //change role
                 if(user.role === "chasseur") {
-                    $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Chasseur").removeClass("badge-dark").addClass("badge-primary");
+                    $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Chasseur").removeClass("badge-light").addClass("badge-primary");
                 } else {
-                    $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Cacheur");
+                    $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Cacheur").removeClass("badge-light").addClass("badge-dark");
                 }
 
                 //change score
@@ -302,19 +376,19 @@ window.document.addEventListener("DOMContentLoaded", function () {
             if(user.joined === myGamename){
 
                 //change chair name
-                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='gameChairInGame']").text("Libre");
+                //$("div[class*='gameChair" + user.gameChair + "'] >  div[class*='gameChairInGame']").text("Libre");
 
                 //Change role
-                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("hors ligne").removeClass("badge-primary").addClass("badge-dark");
+                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Deconnecté").removeClass("badge-primary badge-warning badge-danger badge-dark").addClass("badge-light");
 
                 //change status
-                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > p").text("Quitté");
+                //$("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > p").text("Quitté");
             }
         });
 
         socket.on("access denied", function(message){
             alert(message);
-            window.location.href = "http://192.168.1.10:2727/hall";
+            window.location.href = serverAddress + "hall";
         });
 
         
@@ -324,6 +398,30 @@ window.document.addEventListener("DOMContentLoaded", function () {
 
 
         socket.on("gameStarted", function(gameData){
+            //clear unused game seats
+            //change chair name
+            $("div[class*='gameChairInGame']").each(function(index){
+                if($(this).text() === "Libre"){
+                    $(this).text("");
+                    //remove image avatar
+                    // console.log($(this));
+                    $(this.nextSibling.firstElementChild).remove()
+                }
+            });
+            $("div[class*='gameChairInGame']").each(function(index){
+                if($(this).text() === "Libre"){
+                }
+            });
+            //Change role
+            $("span[class*='badge-light']").each(function(index){
+                $(this).text("");
+            });
+            //change status
+            $("span[class*='badge-light'] + p").each(function(index){
+                $(this).text("Non utilisé");
+            });
+
+            //initialize game
             console.log(gameData);
             game.id = gameData.gameID;
             game.player.id = gameData.player.id;
@@ -332,13 +430,19 @@ window.document.addEventListener("DOMContentLoaded", function () {
             game.player.blocksVisibles = gameData.player.blocksVisibles;
             game.player.role = gameData.player.role;
             game.player.color = gameData.player.color;
+            game.player.gameChair = gameData.player.gameChair;
             //get map and charge locally
-            $.getJSON("/maps/map1.json", function( mapData ) {
-                var mapLoaded = mapData;
-                $.getJSON( "/maps/terrain.json", function( tileset ) {
-                    var tileset = tileset;
-                    drawMap(mapLoaded[0], tileset);
-                    
+            // $.getJSON("/maps/map1.json", function( mapData ) {
+            //     var mapLoaded = mapData;
+            //     $.getJSON( "/maps/terrain.json", function( tileset ) {
+            //         var tileset = tileset;
+            //        drawMap(mapLoaded[0], tileset);
+                    drawMap(map, tileset);
+                    game.carte.image = document.getElementById("tileset");
+                    for(var i = 1 ; i < 6 ; i++){
+                        game.sprites.images.push(document.getElementById("sprite-gamechair" + i));
+                    }
+                    game.player.image = game.sprites.images[game.player.gameChair];
                     document.addEventListener("keydown", function(event){
                         event.preventDefault();
                         if(!game.player.done){
@@ -356,6 +460,11 @@ window.document.addEventListener("DOMContentLoaded", function () {
                     socket.on("moved", function(data){
                         game.player.pos = data.pos;
                         game.player.blocksVisibles = data.blocksVisibles;
+                        game.player.dir = data.dir;
+                        game.player.currentSprite = data.sprite;
+                        if(data.stopped){
+                            game.player.currentSprite = 1;
+                        }
                     });
 
                     socket.on("playersSeen", function(data){
@@ -384,7 +493,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
                         if(game.carte.base.flashing){
                             clearInterval(game.carte.base.flashing);
                             game.carte.base.flashing = null;
-                            game.carte.baseColor = "orange";
+                            game.carte.base.baseColor = "orange";
                         }
                     });
 
@@ -397,7 +506,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
                         if(game.carte.base.flashing){
                             clearInterval(game.carte.base.flashing);
                             game.carte.base.flashing = null;
-                            game.carte.baseColor = "orange";
+                            game.carte.base.baseColor = "orange";
                         }
                     });
 
@@ -419,6 +528,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
                         for(var i = 0 ; i < game.spectateur.length ; i++){
                             if(game.spectateur[i].name === playerInfo.name){
                                 game.spectateur[i].pos = playerInfo.pos;
+                                game.spectateur[i].dir = playerInfo.dir;
+                                game.spectateur[i].currentSprite = playerInfo.currentSprite;
+                                game.spectateur[i].gameChair = playerInfo.gameChair;
                                 spectateurTrouve = true;
                             }
                         }
@@ -428,11 +540,19 @@ window.document.addEventListener("DOMContentLoaded", function () {
                                 radius: playerInfo.radius,
                                 name: playerInfo.name,
                                 color: playerInfo.color,
+                                dir: playerInfo.dir,
+                                currentSprite: playerInfo.currentSprite,
+                                gameChair: playerInfo.gameChair
                             })
                         }
                     });
 
                     socket.on("gameRestarting", function(seconds){
+                        if(game.carte.base.flashing){
+                            clearInterval(game.carte.base.flashing);
+                            game.carte.base.flashing = null;
+                            game.carte.base.baseColor = "orange";
+                        }
                         game.restarting = seconds/1000;
                         game.counter = setInterval(function(){
                             game.restarting--;
@@ -451,6 +571,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
                         game.player.done = false;
                         game.player.playersSeen = [];
                         game.spectateur = [];
+                        game.carte.base.baseColor = "orange";
                     });
 
                     socket.on("player restart", function(user){
@@ -462,9 +583,14 @@ window.document.addEventListener("DOMContentLoaded", function () {
                         }
                     })
 
+                    socket.on("kick", function(message){
+                        alert(message);
+                        window.location.href = serverAddress + "hall";
+                    })
+
                     gameLoop();
-                });
-            });
+            //    });
+            //});
         });
     });
 });

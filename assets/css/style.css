@@ -21,10 +21,12 @@ h2 {
 
 .gameChair {
     border-radius: 50%;
-    width: 22px;
-    height: 22px;
+    width: 65px;
+    /* height: 40px; */
     display: block;
-    margin: 10px auto;
+    margin: auto;
+    overflow: hidden;
+    margin-top: 10px;
 }
 .gameChairInGame {
     /* border-radius: 50%; */
@@ -52,4 +54,22 @@ h2 {
 }
 .black {
     background: black;
+}
+
+.gameChair img {
+    display: block;
+    margin: auto;
+}
+.card-body button {
+    display: block;
+    margin: auto;
+}
+
+.card-body{
+    padding: 10px;
+}
+
+.gameChairInGame + .role > img {
+    display: block;
+    margin: auto;
 }

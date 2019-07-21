@@ -20,7 +20,8 @@ app.set("view engine", "pug");
 const Game = require("./game/js/game.js");
 const outils = require("./game/js/outils.js");
 const tileset = require("./assets/maps/terrain.json");
-const map = require("./assets/maps/map1.json");
+const map = require("./assets/maps/map1.json")[0];
+const map2 = require("./assets/maps/map2.json");
 const colors = ["white", "blue", "green", "purple", "darkorange", "black"];
 
 /******************************* 
@@ -107,8 +108,11 @@ app.get("/game/:id", function(req, res){
 
     res.locals.pageTemplate.pageTitle = "Game";
     res.locals.pageTemplate.myGamename = gameName;
-    res.locals.pageTemplate.map = map[0];
-    res.locals.pageTemplate.tileset = tileset;
+    let mapOfTheGame = games.find(function(oneGame){
+        return oneGame.name === gameName
+    }).map
+    res.locals.pageTemplate.map = JSON.stringify(mapOfTheGame);
+    res.locals.pageTemplate.tileset = JSON.stringify(tileset);
 
     if(res.locals.pageTemplate.userIsLogged){
         res.render("game-screen", res.locals.pageTemplate);
@@ -159,6 +163,33 @@ app.get("/login", function(req, res){
 });
 app.get("/signup", function(req, res){
     // vérification du formulaire ici;
+    let id = req.query.identifiant.trim();
+    let idRegex = new RegExp(/\W/g);
+    let mail = req.query.email;
+    let mailRegex = new RegExp(/^([\w-\.]+)@((?:[\w]+\.)+)([a-zA-Z]{2,4})/i);
+    let mdp = req.query.mdp;
+
+    if( id.length < 3  || id.match(idRegex)){
+        app.locals.message = {
+            type: "error",
+            text: "L'identifiant doit avoir au moins 3 caractères et aucun caractère special ou space."
+        };
+        res.redirect("/");
+    }
+    if (mdp.length < 5){
+        app.locals.message = {
+            type: "error",
+            text: "Le mot de passe doit avoir au moins 5 caractères."
+        };
+        res.redirect("/");
+    }
+    if(!mailRegex.test(mail)){
+        app.locals.message = {
+            type: "error",
+            text: "Veuillez saisir un adresse mail valide."
+        };
+        res.redirect("/");
+    }
 
     bd.connect(function(err) {
         if (err) {
@@ -171,16 +202,17 @@ app.get("/signup", function(req, res){
                 } else {
                     if(!docs.length){ // pas d'identifiant, ok pour faire inscription
                         coll.insertOne({
-                            name: req.query.identifiant,
-                            level:"player",
-                            email:req.query.email,
-                            password:req.query.mdp,
+                            name: id,
+                            level: "player",
+                            email: mail,
+                            password: mdp,
                             gamesPlayed: 0,
                             totalScore: 0
                         }, function(err, result){
                             if(err){
                                 return console.log("Insertion Error: " + err);
                             } else {
+                                bd.close();
                                 // console.log(result);
                                 req.session.utilisateur = {
                                     id: result.insertedId,
@@ -189,9 +221,8 @@ app.get("/signup", function(req, res){
                                 }
                                 app.locals.message = {
                                     type: "success",
-                                    text: "Bienvenu parmi nous " + req.query.identifiant + " ! Vous pouvez jouer à volonté =D"
+                                    text: "Bienvenu parmi nous " + req.query.identifiant + "! Vous pouvez jouer à volonté =D"
                                 };
-                                bd.close();
                                 res.redirect("/hall");
                             }
                         });
@@ -236,11 +267,16 @@ let games = [];
 let playersConnected = [];
 
 //create game for testing
-let newGame = Game("Test Game", map[0], 5, "TheGameMaster");
+let newGame = Game("Test Game", map, 5, "TheGameMaster");
 newGame.mapName = "map1";
 newGame.drawMap(tileset);
 games.push(newGame);
 console.log("game '" + newGame.name + "' created");
+let anotherGame = Game("Catch me if you can", map2, 5, "TheGameMaster");
+anotherGame.mapName = "map2";
+anotherGame.drawMap(tileset);
+games.push(anotherGame);
+console.log("game '" + anotherGame.name + "' created");
 // console.log(games);
 
 ioServer.on("connection", function(socket){
@@ -274,7 +310,8 @@ ioServer.on("connection", function(socket){
             let gameInfo = {
                 name: game.name,
                 map: game.mapName,
-                players: players
+                players: players,
+                initialized: game.initialized
             };
             gamesList.push(gameInfo)
         });
@@ -518,7 +555,8 @@ ioServer.on("connection", function(socket){
                     everybodyInGame.push(player);
                     if(everybodyInGame.length === currentGame.players.length){
                         console.log("Everybody in. Let's start!");
-                        
+                        currentGame.initialized = true;
+                        ioServer.emit("game launched", currentGame.name);
                         currentGame.players.forEach(function(player){
                             player.socket.emit("gameStarted", {
                                 gameID: currentGame.name,
@@ -528,7 +566,8 @@ ioServer.on("connection", function(socket){
                                     pos: {x: player.pos.x, y: player.pos.y},
                                     radius: player.radius,
                                     blocksVisibles: player.blocksVisibles,
-                                    color: player.color
+                                    color: player.color,
+                                    gameChair: player.gameChair
                                 }
                             });
                         })
@@ -557,6 +596,11 @@ ioServer.on("connection", function(socket){
         socket.on("disconnect", function(){
             console.log("Player " + user.name + " disconnected");
 
+            let isHunter = false;
+            if(thisplayer && thisplayer.role === "chasseur"){
+                isHunter = true;
+            }
+
             //removing from playersConnected array
             let playerDisconnected = playersConnected.find(function(element){
                 return element.name === user.name
@@ -564,13 +608,46 @@ ioServer.on("connection", function(socket){
             let index = playersConnected.indexOf(playerDisconnected);
             playersConnected.splice(index, 1);
 
-            //liberating seat in game
-            let playerIndexInGame = currentGame.players.indexOf(thisplayer);
-            currentGame.players.splice(playerIndexInGame, 1);
+            //if less than 2 players left
+            if(currentGame.players.length <= 2){
+                currentGame.initialized = false;
+                ioServer.emit("gameEnded", currentGame.name);
+                //temporary way to end the game
+                currentGame.players.forEach(function(player){
+                    player.surBlock.playerIn = null;
+                    player.socket.emit("kick", "Pas assez de joueurs pour continuer");
+                })
+                currentGame.players.splice(0, currentGame.players.length);
+            } else {
+                thisplayer.surBlock.playerIn = null;
+
+                if(thisplayer.trouve){
+                    let hunter = currentGame.players.find(function(playerx){
+                        return playerx.role === "chasseur";
+                    });
+                    let cible = hunter.playersTrouves.find(function(thiscible){
+                        return thiscible.name === thisplayer.name
+                    });
+                    let indexCible = hunter.playersTrouves.indexOf(cible);
+                    hunter.playersTrouves.splice(indexCible, 1);
+                    if(!hunter.playersTrouves.length){
+                        hunter.socket.emit("ciblesOntFuit", thisplayer.gameChair);
+                    }
+                }
+
+                //liberating seat in game
+                let playerIndexInGame = currentGame.players.indexOf(thisplayer);
+                currentGame.players.splice(playerIndexInGame, 1);
+                //if the player was the hunter
+                if(isHunter){
+                    outils.restartGame(currentGame);
+                }
+            }
+
 
             //Warning other of disconnection
             console.log(user.name + " a sorti du jeu: " + currentGame.name);
-            console.log(playersConnected);
+            console.log(currentGame.players);
             ioServer.emit("player disconnected", user);
         });
     });

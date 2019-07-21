@@ -16,23 +16,23 @@ block main
                 form(action='/login' method='GET' name='loginForm')
                     .form-group
                         label Identifiant (nom de joueur)
-                            input#identifiant.form-control(type='text' name='identifiant')
+                            input#identifiant.form-control(type='text' name='identifiant' required)
                     .form-group
                         label Mot de Passe
-                            input#mdp.form-control(type='password' name='mdp')
+                            input#mdp.form-control(type='password' name='mdp' required)
                     button.btn.btn-dark(type='submit') Se connecter
         .col-6
             #loginBox.border.border-dark.rounded
                 h1.display-4 S'Inscrire
                 hr
-                form(action='/signup' method='GET' name='loginForm')
+                form(action='/signup' method='GET' name='signupForm')
                     .form-group
                         label Identifiant (nom de joueur)
-                            input#identifiant.form-control(type='text' name='identifiant' maxlength="24")
+                            input#identifiant.form-control(type='text' name='identifiant' maxlength="24" required)
                     .form-group
                         label E-mail
-                            input#identifiant.form-control(type='email' name='email')
+                            input#identifiant.form-control(type='email' name='email' required)
                     .form-group
                         label Mot de Passe
-                            input#mdp.form-control(type='password' name='mdp' placeholder='9 caractères minimum' minlength="9")
+                            input#mdp.form-control(type='password' name='mdp' placeholder='5 caractères minimum' minlength="5" required)
                     button.btn.btn-dark(type='submit') S&apos;inscrire

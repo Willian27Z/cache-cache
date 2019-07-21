@@ -7,9 +7,6 @@ const outils = {
             player.blocksAround = outils.getBlocksAround(player, game);
             player.surBlock.playerIn = null;
             player.surBlock = game.carte.blocks[blockIndex];
-            if(game.carte.blocks[blockIndex]){
-                game.carte.blocks[blockIndex].playerIn = player;
-            }
 
             if(game.carte.base == player.surBlock && player.playersTrouves.length){
                 outils.killFound(player, game);
@@ -19,6 +16,9 @@ const outils = {
                 player.done = true;
                 outils.cacheurGagne(player, game);
             }
+        }
+        if(game.carte.blocks[blockIndex] && !player.done){
+            game.carte.blocks[blockIndex].playerIn = player;
         }
     },
     getBlocksAround: function(player, game){
@@ -135,6 +135,8 @@ const outils = {
                     name: playerFound.name,
                     color: playerFound.color,
                     gameChair: playerFound.gameChair,
+                    dir: playerFound.direction,
+                    currentSprite: playerFound.currentSprite
                 });
                 
                 if(player.role === "chasseur" && !game.carte.blocks[player.blocksVisibles[i]].playerIn.trouve){
@@ -191,6 +193,7 @@ const outils = {
     },
     cacheurGagne: function(player, game){
         player.score++
+        player.surBlock.playerIn = null;
         outils.sendToNextRound(player, game);
         // Inform players
         game.players.forEach(function(oneplayer){
@@ -215,46 +218,42 @@ const outils = {
     movePlayer: function(player, game, key, socket){
         if(key === "ArrowRight"){
             if(player.direction !== "right" || player.moving === null) {
-                clearInterval(player.moving);
-                player.moving = setInterval(function(){
-                    player.pos.x += 1;
+                outils.startMovement("right", player, game);
+                // clearInterval(player.moving);
+                // player.moving = setInterval(function(){
+                //     player.pos.x += 1;
 
                     
-                    outils.checkAll(game);
+                //     outils.checkAll(game);
 
 
-                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles});
+                //     socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: "right"});
 
-                    if(game.nextRound.length){
-                        game.nextRound.forEach(function(playerout){
-                            playerout.socket.emit("spectateur", {
-                                pos: {x: player.pos.x, y: player.pos.y},
-                                radius: player.radius,
-                                name: player.name,
-                                color: player.color,
-                            });
-                        });
-                    }
+                //     if(game.nextRound.length){
+                //         game.nextRound.forEach(function(playerout){
+                //             playerout.socket.emit("spectateur", {
+                //                 pos: {x: player.pos.x, y: player.pos.y},
+                //                 radius: player.radius,
+                //                 name: player.name,
+                //                 color: player.color,
+                //                 dir: "right"
+                //             });
+                //         });
+                //     }
 
-                }, player.speed);
-                player.direction = "right";
+                // }, player.speed);
+                // player.direction = "right";
             };
         };
         if(key === "ArrowLeft") {
             if(player.direction !== "left" || player.moving === null) {
+                outils.startMovement("left", player, game);
+                /*
                 clearInterval(player.moving);
                 player.moving = setInterval(function(){
                     player.pos.x -= 1;
-
-                    // outils.getMyBlock(player, game);
-                    // player.blocksAround = outils.getBlocksAround(player, game);
-                    // outils.checkCollision(player, game);
-                    // player.blocksVisibles = outils.getVisibleBlocks(player, game);
-                    // outils.checkIfFound(player, game);
                     outils.checkAll(game);
-
-                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles});
-
+                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: "left"});
                     if(game.nextRound.length){
                         game.nextRound.forEach(function(playerout){
                             playerout.socket.emit("spectateur", {
@@ -262,29 +261,25 @@ const outils = {
                                 radius: player.radius,
                                 name: player.name,
                                 color: player.color,
+                                dir: "left"
                             });
                         });
                     }
 
                 }, player.speed);
                 player.direction = "left";
+                */
             };
         };
         if(key === "ArrowDown"){
             if(player.direction !== "down" || player.moving === null) {
+                outils.startMovement("down", player, game);
+                /*
                 clearInterval(player.moving);
                 player.moving = setInterval(function(){
                     player.pos.y += 1;
-
-                    // outils.getMyBlock(player, game);
-                    // player.blocksAround = outils.getBlocksAround(player, game);
-                    // outils.checkCollision(player, game);
-                    // player.blocksVisibles = outils.getVisibleBlocks(player, game);
-                    // outils.checkIfFound(player, game);
                     outils.checkAll(game);
-
-                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles});
-
+                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: "down"});
                     if(game.nextRound.length){
                         game.nextRound.forEach(function(playerout){
                             playerout.socket.emit("spectateur", {
@@ -292,29 +287,25 @@ const outils = {
                                 radius: player.radius,
                                 name: player.name,
                                 color: player.color,
+                                dir: "down"
                             });
                         });
                     }
 
                 }, player.speed);
                 player.direction = "down";
+                */
             };
         };
         if(key === "ArrowUp") {
             if(player.direction !== "up" || player.moving === null) {
+                outils.startMovement("up", player, game);
+                /*
                 clearInterval(player.moving);
                 player.moving = setInterval(function(){
                     player.pos.y -= 1;
-
-                    // outils.getMyBlock(player, game);
-                    // player.blocksAround = outils.getBlocksAround(player, game);
-                    // outils.checkCollision(player, game);
-                    // player.blocksVisibles = outils.getVisibleBlocks(player, game);
-                    // outils.checkIfFound(player, game);
                     outils.checkAll(game);
-
-                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles});
-
+                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: "up"});
                     if(game.nextRound.length){
                         game.nextRound.forEach(function(playerout){
                             playerout.socket.emit("spectateur", {
@@ -322,12 +313,14 @@ const outils = {
                                 radius: player.radius,
                                 name: player.name,
                                 color: player.color,
+                                dir: "up"
                             });
                         });
                     }
 
                 }, player.speed);
                 player.direction = "up";
+                */
             };
         };
         if(key === " " && player.saute === false && (player.role === "chasseur" || player.trouve) && player.moving){
@@ -354,20 +347,73 @@ const outils = {
          ){
             clearInterval(player.moving);
             player.moving = null;
-
-            // outils.getMyBlock(player, game);
-            // player.blocksAround = outils.getBlocksAround(player, game);
-            // outils.checkCollision(player, game);
-            // player.blocksVisibles = outils.getVisibleBlocks(player, game);
-            // outils.checkIfFound(player, game);
+            clearInterval(player.spriteTiming);
+            player.spriteTiming = null;
+            player.currentSprite = 1;
             outils.checkAll(game);
-
-            socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles});
-            // player.direction = null;
+            socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: player.direction, stopped: true});
         };
         if( key === " " ){
             player.saute = false;
         }
+    },
+    startMovement: function(direction, player, game){
+        clearInterval(player.moving);
+        clearInterval(player.spriteTiming);
+        let movementX;
+        let movementY;
+        switch(direction){
+            case "left":
+                movementX = -1;
+                movementY = 0;
+                break;
+            case "right":
+                movementX = 1;
+                movementY = 0;
+                break;
+            case "up":
+                movementX = 0;
+                movementY = -1;
+                break;
+            case "down":
+                movementX = 0;
+                movementY = 1;
+                break;
+        }
+        player.moving = setInterval(function(){
+            player.pos.x += movementX;
+            player.pos.y += movementY;
+            outils.checkAll(game);
+            player.socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: direction, sprite: player.currentSprite});
+            if(game.nextRound.length){
+                game.nextRound.forEach(function(playerout){
+                    playerout.socket.emit("spectateur", {
+                        pos: {x: player.pos.x, y: player.pos.y},
+                        radius: player.radius,
+                        name: player.name,
+                        color: player.color,
+                        dir: direction,
+                        currentSprite: player.currentSprite,
+                        gameChair: player.gameChair
+                    });
+                });
+            }
+    
+        }, player.speed);
+        player.spriteTiming = setInterval(function(){
+            if(player.nextSprite){
+                player.currentSprite++;
+                if(player.currentSprite >= 2) {
+                   player.nextSprite = false;               
+                }
+            } else {
+                player.currentSprite--;
+                if(player.currentSprite <= 0) {
+                    player.nextSprite = true;
+                }
+            } 
+        }, 200);
+        player.direction = direction;
     },
     checkAll: function(game){
         for(let i = 0 ; i < game.players.length ; i++){
@@ -423,6 +469,7 @@ const outils = {
         });
         setTimeout(function(){
             let departIndex = 0;
+            let chasseurChoisi = false;
             game.players.forEach(function(player){
                 //change roles
                 if(player.role === "chasseur"){
@@ -431,18 +478,24 @@ const outils = {
                     player.pos.y = (game.carte.departs[departIndex].y * game.carte.tailleBlock) + game.carte.tailleBlock/2;
                     departIndex++;
                 } else {
-                    if(player == game.nextRound[0]){
+                    if(game.nextRound[0] && player == game.nextRound[0]){
+                        chasseurChoisi = true;
                         player.role = "chasseur";
                         player.pos.x = (game.carte.base.x * game.carte.tailleBlock) + game.carte.tailleBlock/2;
                         player.pos.y = (game.carte.base.y * game.carte.tailleBlock) + game.carte.tailleBlock/2;
     
+                    } else if (!game.nextRound[0] && !chasseurChoisi){
+                        chasseurChoisi = true;
+                        player.role = "chasseur";
+                        player.pos.x = (game.carte.base.x * game.carte.tailleBlock) + game.carte.tailleBlock/2;
+                        player.pos.y = (game.carte.base.y * game.carte.tailleBlock) + game.carte.tailleBlock/2;
                     } else {
                         player.pos.x = (game.carte.departs[departIndex].x * game.carte.tailleBlock) + game.carte.tailleBlock/2;
                         player.pos.y = (game.carte.departs[departIndex].y * game.carte.tailleBlock) + game.carte.tailleBlock/2;
                         departIndex++;
                     }
                 }
-                
+                player.surBlock.playerIn = null;
                 //reset parameters
                 player.direction = "up";
                 outils.getMyBlock(player, game);
