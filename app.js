@@ -310,8 +310,8 @@ app.use(function (req, res) {
     res.status(404).render('404');
 });
 
-const httpServer = app.listen(2727, function(){
-    console.log("Server listening at port: 2727");
+const httpServer = app.listen(443, function(){
+    console.log("Server listening at port: 443");
 });
 
 /******************************* 
