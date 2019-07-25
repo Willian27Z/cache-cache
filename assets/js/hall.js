@@ -1,4 +1,5 @@
-var serverAddress = "https://cache-cache.herokuapp.com/"
+//var serverAddress = "https://cache-cache.herokuapp.com/"
+var serverAddress = "http://92.170.146.99/"
 
 window.document.addEventListener("DOMContentLoaded", function () {
     socket = io(serverAddress);

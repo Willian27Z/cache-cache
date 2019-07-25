@@ -1,4 +1,4 @@
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 2727;
 
 /******************************* 
 ***********NODE MODULES*********
@@ -170,7 +170,7 @@ app.get("/profil/:name", function(req, res){
                         } else {
                             app.locals.message = {
                                 type: "error",
-                                text: "Ce profil n'a pas été trouvé ou n'éxistez pas."
+                                text: "Ce profil n'a pas été trouvé ou n'éxiste pas."
                             };
                             res.redirect("/hall");
                         }
@@ -722,7 +722,7 @@ ioServer.on("connection", function(socket){
                 currentGame.players.forEach(function(player){
                     clearInterval(player.gameTimer);
                     player.surBlock.playerIn = null;
-                    player.socket.emit("kick", "Pas assez de joueurs pour continuer");
+                    player.socket.emit("kick", "Pas assez de joueurs pour continuer. Veuillez revenir au Hall.");
                 })
                 currentGame.players.splice(0, currentGame.players.length);
             } else {
@@ -746,12 +746,12 @@ ioServer.on("connection", function(socket){
                 let playerIndexInGame = currentGame.players.indexOf(thisplayer);
                 currentGame.players.splice(playerIndexInGame, 1);
                 //if the player was the hunter
-                if(isHunter){
+                if(isHunter || currentGame.nextRound.length === currentGame.players.length - 1){
                     outils.restartGame(currentGame);
                 }
             }
 
-            //Warning other of disconnection
+            //Warning others of disconnection
             console.log(user.name + " a sorti du jeu: " + currentGame.name);
             console.log(currentGame.players);
             ioServer.emit("player disconnected", user);

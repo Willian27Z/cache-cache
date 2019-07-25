@@ -1,7 +1,8 @@
 /******************************* 
 ********GLOBAL VARIABLES********
 *******************************/
-var serverAddress = "https://cache-cache.herokuapp.com/"
+//var serverAddress = "https://cache-cache.herokuapp.com/"
+var serverAddress = "http://92.170.146.99/"
 var canvas = document.getElementById("canvas");
 var ctx;
 if (canvas.getContext) {
@@ -69,8 +70,13 @@ var game = {
     },
     spectateur: [],
     restarting: null,
-    spottedSFX: null,
-    time: 0
+    SFX: {
+        spotted: null,
+        round: null,
+        win: null
+    },
+    time: 0,
+    loop: null
 };
 
 
@@ -173,7 +179,7 @@ var gameLoop = function(){
         ctx.fillText("Partie Finit! Prochain partie dans... " + game.restarting, 150, 304);
     }
 
-    window.requestAnimationFrame(gameLoop);
+    game.loop = window.requestAnimationFrame(gameLoop);
 };
 
 
@@ -339,7 +345,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 if(playersConnected[i].joined === myGamename){
 
                     //change chair name
-                    var playerLink = $("<a href='/profil/" + playersConnected[i].name + "'  target='_blank' class='playerLink'>").text(playersConnected[i].name)
+                    var playerLink = $("<a href='/profil/" + encodeURIComponent(playersConnected[i].name) + "'  target='_blank' class='playerLink'>").text(playersConnected[i].name)
 
                     $("div[class*='gameChair" + playersConnected[i].gameChair + "'] >  div[class*='gameChairInGame']").text("").append(playerLink);
 
@@ -360,8 +366,11 @@ window.document.addEventListener("DOMContentLoaded", function () {
             console.log(user);
             if(user.joined === myGamename){
                 console.log("somebody entered game!");
-                //change chair name
-                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='gameChairInGame']").text(user.name);
+                //change chair name with link
+
+                var playerLink = $("<a href='/profil/" + encodeURIComponent(user.name) + "'  target='_blank' class='playerLink'>").text(user.name);
+
+                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='gameChairInGame']").text("").append(playerLink);
 
                 //change role
                 if(user.role === "chasseur") {
@@ -443,7 +452,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
             //         var tileset = tileset;
             //        drawMap(mapLoaded[0], tileset);
             drawMap(map, tileset);
-            game.spottedSFX = document.getElementById("spotted");
+            game.SFX.spotted = document.getElementById("spotted");
+            game.SFX.round = document.getElementById("round");
+            game.SFX.win = document.getElementById("win");
             game.carte.image = document.getElementById("tileset");
             var timer = document.getElementById("time");
             game.timer = setInterval(function(){
@@ -497,7 +508,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 for(var i = 0 ; i < data.length ; i++){
                     //change player chair status
                     $("div[class*='gameChair" + data[i] + "'] >  div[class*='role'] > div > span").text("Trouvé").removeClass("badge-dark").addClass("badge-warning");
-                    game.spottedSFX.play();
+                    if(data[i] === game.player.gameChair || game.player.role === "chasseur"){
+                        game.SFX.spotted.play();
+                    }
                 }
             });
 
@@ -516,6 +529,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
             socket.on("cacheur gagné", function(data){
                     //change player chair status
                     $("div[class*='gameChair" + data + "'] >  div[class*='role'] > div > span").text("Gagné").removeClass("badge-warning badge-dark").addClass("badge-success");
+                    if(data === game.player.gameChair){
+                        game.SFX.win.play();
+                    }
             });
 
             socket.on("ciblesOntFuit", function(){
@@ -578,6 +594,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
                         game.restarting = null
                     }
                 }, 1000);
+                game.SFX.round.play();
             });
 
             socket.on("game restarted", function(gameData){
@@ -600,8 +617,14 @@ window.document.addEventListener("DOMContentLoaded", function () {
             })
 
             socket.on("kick", function(message){
-                alert(message);
-                window.location.href = serverAddress + "hall";
+                game.player.done = true;
+                window.cancelAnimationFrame(game.loop);
+                var kickText = $("<h1>").text(message);
+                $("canvas").remove();
+                $(".row").append(kickText);
+                clearInterval(game.timer);
+                // alert(message);
+                // window.location.href = serverAddress + "hall";
             })
 
             gameLoop();

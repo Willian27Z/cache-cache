@@ -152,11 +152,6 @@ const outils = {
             }
         }
         socket.emit("playersSeen", playersFound);
-        // if(game.nextRound.length){
-        //     game.nextRound.forEach(function(playerout){
-        //         playerout.socket.emit("playersSeen", playersFound);
-        //     });
-        // }
 
         if(didHunterFindSomeone){
             game.players.forEach(function(player){
@@ -167,18 +162,11 @@ const outils = {
     killFound: function(player, game){
         let playersKilled = [];
         for(var i = 0 ; i < player.playersTrouves.length ; i++ ){
-            // player.playersTrouves[i].dead = true;
-            // player.playersTrouves[i].socket.emit("lost", player.playersTrouves[i].gameChair);
-
             playersKilled.push(player.playersTrouves[i].gameChair)
             console.log("Player killed: " + player.playersTrouves[i].name);
-
+            player.playersTrouves[i].done = true;
             player.score++
-
-            // game.nextRound.push(player.playersTrouves[i]);
             outils.sendToNextRound(player.playersTrouves[i], game);
-
-            
         }
         clearInterval(game.carte.base.flashing);
         game.carte.base.flashing = null;
@@ -219,108 +207,21 @@ const outils = {
         if(key === "ArrowRight"){
             if(player.direction !== "right" || player.moving === null) {
                 outils.startMovement("right", player, game);
-                // clearInterval(player.moving);
-                // player.moving = setInterval(function(){
-                //     player.pos.x += 1;
-
-                    
-                //     outils.checkAll(game);
-
-
-                //     socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: "right"});
-
-                //     if(game.nextRound.length){
-                //         game.nextRound.forEach(function(playerout){
-                //             playerout.socket.emit("spectateur", {
-                //                 pos: {x: player.pos.x, y: player.pos.y},
-                //                 radius: player.radius,
-                //                 name: player.name,
-                //                 color: player.color,
-                //                 dir: "right"
-                //             });
-                //         });
-                //     }
-
-                // }, player.speed);
-                // player.direction = "right";
             };
         };
         if(key === "ArrowLeft") {
             if(player.direction !== "left" || player.moving === null) {
                 outils.startMovement("left", player, game);
-                /*
-                clearInterval(player.moving);
-                player.moving = setInterval(function(){
-                    player.pos.x -= 1;
-                    outils.checkAll(game);
-                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: "left"});
-                    if(game.nextRound.length){
-                        game.nextRound.forEach(function(playerout){
-                            playerout.socket.emit("spectateur", {
-                                pos: {x: player.pos.x, y: player.pos.y},
-                                radius: player.radius,
-                                name: player.name,
-                                color: player.color,
-                                dir: "left"
-                            });
-                        });
-                    }
-
-                }, player.speed);
-                player.direction = "left";
-                */
             };
         };
         if(key === "ArrowDown"){
             if(player.direction !== "down" || player.moving === null) {
                 outils.startMovement("down", player, game);
-                /*
-                clearInterval(player.moving);
-                player.moving = setInterval(function(){
-                    player.pos.y += 1;
-                    outils.checkAll(game);
-                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: "down"});
-                    if(game.nextRound.length){
-                        game.nextRound.forEach(function(playerout){
-                            playerout.socket.emit("spectateur", {
-                                pos: {x: player.pos.x, y: player.pos.y},
-                                radius: player.radius,
-                                name: player.name,
-                                color: player.color,
-                                dir: "down"
-                            });
-                        });
-                    }
-
-                }, player.speed);
-                player.direction = "down";
-                */
             };
         };
         if(key === "ArrowUp") {
             if(player.direction !== "up" || player.moving === null) {
                 outils.startMovement("up", player, game);
-                /*
-                clearInterval(player.moving);
-                player.moving = setInterval(function(){
-                    player.pos.y -= 1;
-                    outils.checkAll(game);
-                    socket.emit("moved", {pos: player.pos, blocksVisibles: player.blocksVisibles, dir: "up"});
-                    if(game.nextRound.length){
-                        game.nextRound.forEach(function(playerout){
-                            playerout.socket.emit("spectateur", {
-                                pos: {x: player.pos.x, y: player.pos.y},
-                                radius: player.radius,
-                                name: player.name,
-                                color: player.color,
-                                dir: "up"
-                            });
-                        });
-                    }
-
-                }, player.speed);
-                player.direction = "up";
-                */
             };
         };
         if(key === " " && player.saute === false && (player.role === "chasseur" || player.trouve) && player.moving){
