@@ -1,7 +1,7 @@
 /******************************* 
 ********GLOBAL VARIABLES********
 *******************************/
-var serverAddress = "http://92.170.146.99/"
+var serverAddress = "https://cache-cache.herokuapp.com/"
 var canvas = document.getElementById("canvas");
 var ctx;
 if (canvas.getContext) {
@@ -68,7 +68,9 @@ var game = {
         left: [[0,96],[24,96],[48,96]]
     },
     spectateur: [],
-    restarting: null
+    restarting: null,
+    spottedSFX: null,
+    time: 0
 };
 
 
@@ -337,7 +339,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 if(playersConnected[i].joined === myGamename){
 
                     //change chair name
-                    $("div[class*='gameChair" + playersConnected[i].gameChair + "'] >  div[class*='gameChairInGame']").text(playersConnected[i].name);
+                    var playerLink = $("<a href='/profil/" + playersConnected[i].name + "'  target='_blank' class='playerLink'>").text(playersConnected[i].name)
+
+                    $("div[class*='gameChair" + playersConnected[i].gameChair + "'] >  div[class*='gameChairInGame']").text("").append(playerLink);
 
                     //change role
                     if(playersConnected[i].role === "chasseur") {
@@ -382,7 +386,12 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Deconnecté").removeClass("badge-primary badge-warning badge-danger badge-dark").addClass("badge-light");
 
                 //change status
-                //$("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > p").text("Quitté");
+                var currentText = $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > p").text();
+                var minutes = Math.floor(game.time/60);
+                if(minutes < 10){ minutes = "0" + minutes }
+                var seconds = (game.time % 60).toString();
+                if(seconds < 10){ seconds = "0" + seconds }
+                $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > p").text(currentText + " | Temps de partie: " + minutes + ":" + seconds);
             }
         });
 
@@ -399,27 +408,23 @@ window.document.addEventListener("DOMContentLoaded", function () {
 
         socket.on("gameStarted", function(gameData){
             //clear unused game seats
-            //change chair name
             $("div[class*='gameChairInGame']").each(function(index){
                 if($(this).text() === "Libre"){
-                    $(this).text("");
+                    // $(this).text("");
                     //remove image avatar
                     // console.log($(this));
-                    $(this.nextSibling.firstElementChild).remove()
+                    //$(this.nextSibling.firstElementChild).remove()
+                    $(this.parentElement).remove()
                 }
             });
-            $("div[class*='gameChairInGame']").each(function(index){
-                if($(this).text() === "Libre"){
-                }
-            });
-            //Change role
-            $("span[class*='badge-light']").each(function(index){
-                $(this).text("");
-            });
-            //change status
-            $("span[class*='badge-light'] + p").each(function(index){
-                $(this).text("Non utilisé");
-            });
+            // //Change role
+            // $("span[class*='badge-light']").each(function(index){
+            //     $(this).text("");
+            // });
+            // //change status
+            // $("span[class*='badge-light'] + p").each(function(index){
+            //     $(this).text("Non utilisé");
+            // });
 
             //initialize game
             console.log(gameData);
@@ -437,158 +442,169 @@ window.document.addEventListener("DOMContentLoaded", function () {
             //     $.getJSON( "/maps/terrain.json", function( tileset ) {
             //         var tileset = tileset;
             //        drawMap(mapLoaded[0], tileset);
-                    drawMap(map, tileset);
-                    game.carte.image = document.getElementById("tileset");
-                    for(var i = 1 ; i < 6 ; i++){
-                        game.sprites.images.push(document.getElementById("sprite-gamechair" + i));
+            drawMap(map, tileset);
+            game.spottedSFX = document.getElementById("spotted");
+            game.carte.image = document.getElementById("tileset");
+            var timer = document.getElementById("time");
+            game.timer = setInterval(function(){
+                game.time++;
+                var minutes = Math.floor(game.time/60);
+                if(minutes < 10){ minutes = "0" + minutes }
+                var seconds = (game.time % 60).toString();
+                if(seconds < 10){ seconds = "0" + seconds }
+                timer.textContent = minutes + ":" + seconds;
+            }, 1000);
+            for(var i = 1 ; i < 6 ; i++){
+                game.sprites.images.push(document.getElementById("sprite-gamechair" + i));
+            }
+            game.player.image = game.sprites.images[game.player.gameChair];
+            document.addEventListener("keydown", function(event){
+                event.preventDefault();
+                if(!game.player.done){
+                    socket.emit("move", event.key);
+                }
+            });
+            
+            document.addEventListener("keyup", function(event){
+                event.preventDefault();
+                if(!game.player.done){
+                    socket.emit("stop", event.key);
+                }
+            });
+
+            socket.on("moved", function(data){
+                game.player.pos = data.pos;
+                game.player.blocksVisibles = data.blocksVisibles;
+                game.player.dir = data.dir;
+                game.player.currentSprite = data.sprite;
+                if(data.stopped){
+                    game.player.currentSprite = 1;
+                }
+            });
+
+            socket.on("playersSeen", function(data){
+                game.player.playersSeen = data;
+            });
+
+            socket.on("playerFound", function(data){
+                console.log("TCL: data", data)
+                if(!game.carte.base.flashing){
+                    game.carte.base.flashBase();
+                }
+            });
+
+            socket.on("foundByHunter", function(data){
+                for(var i = 0 ; i < data.length ; i++){
+                    //change player chair status
+                    $("div[class*='gameChair" + data[i] + "'] >  div[class*='role'] > div > span").text("Trouvé").removeClass("badge-dark").addClass("badge-warning");
+                    game.spottedSFX.play();
+                }
+            });
+
+            socket.on("players killed", function(data){
+                for(var i = 0 ; i < data.length ; i++){
+                    //change player chair status
+                    $("div[class*='gameChair" + data[i] + "'] >  div[class*='role'] > div > span").text("Perdu").removeClass("badge-warning").addClass("badge-danger");
+                }
+                if(game.carte.base.flashing){
+                    clearInterval(game.carte.base.flashing);
+                    game.carte.base.flashing = null;
+                    game.carte.base.baseColor = "orange";
+                }
+            });
+
+            socket.on("cacheur gagné", function(data){
+                    //change player chair status
+                    $("div[class*='gameChair" + data + "'] >  div[class*='role'] > div > span").text("Gagné").removeClass("badge-warning badge-dark").addClass("badge-success");
+            });
+
+            socket.on("ciblesOntFuit", function(){
+                if(game.carte.base.flashing){
+                    clearInterval(game.carte.base.flashing);
+                    game.carte.base.flashing = null;
+                    game.carte.base.baseColor = "orange";
+                }
+            });
+
+            socket.on("add points", function(data){
+                //change player chair points
+                $("div[class*='gameChair" + data.gameChair + "'] >  div[class*='role'] > div > p").text("Points : " + data.score);
+            });
+
+            socket.on("you are done", function(data){
+                game.player.done = true;
+                game.player.pos.x = -100;
+                game.player.pos.y = -100;
+                game.player.blocksVisibles = [];
+                game.player.playersSeen = [];
+            });
+
+            socket.on("spectateur", function(playerInfo){
+                var spectateurTrouve = false;
+                for(var i = 0 ; i < game.spectateur.length ; i++){
+                    if(game.spectateur[i].name === playerInfo.name){
+                        game.spectateur[i].pos = playerInfo.pos;
+                        game.spectateur[i].dir = playerInfo.dir;
+                        game.spectateur[i].currentSprite = playerInfo.currentSprite;
+                        game.spectateur[i].gameChair = playerInfo.gameChair;
+                        spectateurTrouve = true;
                     }
-                    game.player.image = game.sprites.images[game.player.gameChair];
-                    document.addEventListener("keydown", function(event){
-                        event.preventDefault();
-                        if(!game.player.done){
-                            socket.emit("move", event.key);
-                        }
-                    });
-                    
-                    document.addEventListener("keyup", function(event){
-                        event.preventDefault();
-                        if(!game.player.done){
-                            socket.emit("stop", event.key);
-                        }
-                    });
-
-                    socket.on("moved", function(data){
-                        game.player.pos = data.pos;
-                        game.player.blocksVisibles = data.blocksVisibles;
-                        game.player.dir = data.dir;
-                        game.player.currentSprite = data.sprite;
-                        if(data.stopped){
-                            game.player.currentSprite = 1;
-                        }
-                    });
-
-                    socket.on("playersSeen", function(data){
-                        game.player.playersSeen = data;
-                    });
-
-                    socket.on("playerFound", function(data){
-                        console.log("TCL: data", data)
-                        if(!game.carte.base.flashing){
-                            game.carte.base.flashBase();
-                        }
-                    });
-
-                    socket.on("foundByHunter", function(data){
-                        for(var i = 0 ; i < data.length ; i++){
-                            //change player chair status
-                            $("div[class*='gameChair" + data[i] + "'] >  div[class*='role'] > div > span").text("Trouvé").removeClass("badge-dark").addClass("badge-warning");
-                        }
-                    });
-
-                    socket.on("players killed", function(data){
-                        for(var i = 0 ; i < data.length ; i++){
-                            //change player chair status
-                            $("div[class*='gameChair" + data[i] + "'] >  div[class*='role'] > div > span").text("Perdu").removeClass("badge-warning").addClass("badge-danger");
-                        }
-                        if(game.carte.base.flashing){
-                            clearInterval(game.carte.base.flashing);
-                            game.carte.base.flashing = null;
-                            game.carte.base.baseColor = "orange";
-                        }
-                    });
-
-                    socket.on("cacheur gagné", function(data){
-                            //change player chair status
-                            $("div[class*='gameChair" + data + "'] >  div[class*='role'] > div > span").text("Gagné").removeClass("badge-warning badge-dark").addClass("badge-success");
-                    });
-
-                    socket.on("ciblesOntFuit", function(){
-                        if(game.carte.base.flashing){
-                            clearInterval(game.carte.base.flashing);
-                            game.carte.base.flashing = null;
-                            game.carte.base.baseColor = "orange";
-                        }
-                    });
-
-                    socket.on("add points", function(data){
-                        //change player chair points
-                        $("div[class*='gameChair" + data.gameChair + "'] >  div[class*='role'] > div > p").text("Points : " + data.score);
-                    });
-
-                    socket.on("you are done", function(data){
-                        game.player.done = true;
-                        game.player.pos.x = -100;
-                        game.player.pos.y = -100;
-                        game.player.blocksVisibles = [];
-                        game.player.playersSeen = [];
-                    });
-
-                    socket.on("spectateur", function(playerInfo){
-                        var spectateurTrouve = false;
-                        for(var i = 0 ; i < game.spectateur.length ; i++){
-                            if(game.spectateur[i].name === playerInfo.name){
-                                game.spectateur[i].pos = playerInfo.pos;
-                                game.spectateur[i].dir = playerInfo.dir;
-                                game.spectateur[i].currentSprite = playerInfo.currentSprite;
-                                game.spectateur[i].gameChair = playerInfo.gameChair;
-                                spectateurTrouve = true;
-                            }
-                        }
-                        if(!spectateurTrouve){
-                            game.spectateur.push({
-                                pos: playerInfo.pos,
-                                radius: playerInfo.radius,
-                                name: playerInfo.name,
-                                color: playerInfo.color,
-                                dir: playerInfo.dir,
-                                currentSprite: playerInfo.currentSprite,
-                                gameChair: playerInfo.gameChair
-                            })
-                        }
-                    });
-
-                    socket.on("gameRestarting", function(seconds){
-                        if(game.carte.base.flashing){
-                            clearInterval(game.carte.base.flashing);
-                            game.carte.base.flashing = null;
-                            game.carte.base.baseColor = "orange";
-                        }
-                        game.restarting = seconds/1000;
-                        game.counter = setInterval(function(){
-                            game.restarting--;
-                            if(game.restarting <= 0){
-                                clearInterval(game.counter);
-                                game.counter = null;
-                                game.restarting = null
-                            }
-                        }, 1000);
-                    });
-
-                    socket.on("game restarted", function(gameData){
-                        game.player.pos = gameData.pos;
-                        game.player.blocksVisibles = gameData.blocksVisibles;
-                        game.player.role = gameData.role;
-                        game.player.done = false;
-                        game.player.playersSeen = [];
-                        game.spectateur = [];
-                        game.carte.base.baseColor = "orange";
-                    });
-
-                    socket.on("player restart", function(user){
-                        //change role
-                        if(user.role === "chasseur") {
-                            $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Chasseur").removeClass("badge-dark badge-primary badge-warning badge-danger badge-success").addClass("badge-primary");
-                        } else {
-                            $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Cacheur").removeClass("badge-dark badge-primary badge-warning badge-danger badge-success").addClass("badge-dark");
-                        }
+                }
+                if(!spectateurTrouve){
+                    game.spectateur.push({
+                        pos: playerInfo.pos,
+                        radius: playerInfo.radius,
+                        name: playerInfo.name,
+                        color: playerInfo.color,
+                        dir: playerInfo.dir,
+                        currentSprite: playerInfo.currentSprite,
+                        gameChair: playerInfo.gameChair
                     })
+                }
+            });
 
-                    socket.on("kick", function(message){
-                        alert(message);
-                        window.location.href = serverAddress + "hall";
-                    })
+            socket.on("gameRestarting", function(seconds){
+                if(game.carte.base.flashing){
+                    clearInterval(game.carte.base.flashing);
+                    game.carte.base.flashing = null;
+                    game.carte.base.baseColor = "orange";
+                }
+                game.restarting = seconds/1000;
+                game.counter = setInterval(function(){
+                    game.restarting--;
+                    if(game.restarting <= 0){
+                        clearInterval(game.counter);
+                        game.counter = null;
+                        game.restarting = null
+                    }
+                }, 1000);
+            });
 
-                    gameLoop();
+            socket.on("game restarted", function(gameData){
+                game.player.pos = gameData.pos;
+                game.player.blocksVisibles = gameData.blocksVisibles;
+                game.player.role = gameData.role;
+                game.player.done = false;
+                game.player.playersSeen = [];
+                game.spectateur = [];
+                game.carte.base.baseColor = "orange";
+            });
+
+            socket.on("player restart", function(user){
+                //change role
+                if(user.role === "chasseur") {
+                    $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Chasseur").removeClass("badge-dark badge-primary badge-warning badge-danger badge-success").addClass("badge-primary");
+                } else {
+                    $("div[class*='gameChair" + user.gameChair + "'] >  div[class*='role'] > div > span").text("Cacheur").removeClass("badge-dark badge-primary badge-warning badge-danger badge-success").addClass("badge-dark");
+                }
+            })
+
+            socket.on("kick", function(message){
+                alert(message);
+                window.location.href = serverAddress + "hall";
+            })
+
+            gameLoop();
             //    });
             //});
         });

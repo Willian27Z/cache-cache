@@ -6,9 +6,10 @@ const GameSession = (function(){
     let newGame = function(name, map, maxPlayers, host) {
         this.name = name;
         this.map = map;
-        this.maxPlayers = maxPlayers;
-        this.initialized = false;
-        this.host = host;
+        this.maxPlayers = maxPlayers; // for future reference if the game handles more than 5 players
+        this.initialized = false; // for players in hall to know if the game is being played
+        this.valid = false; //after one round it becomes valid and results will be update in database
+        this.host = host; //for future reference when games can be created by players
         this.carte = {
             blocks: [],
             taille: {x: null, y: null},

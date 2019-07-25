@@ -1,5 +1,5 @@
 const Player = (function(){
-    let newPlayer = function (name, role, x, y, radius, sauteDistance, speed, socketId , color){
+    let NewPlayer = function (name, role, x, y, radius, sauteDistance, speed, socketId , color){
         this.name = name;
         this.socket = socketId;
         this.done = false;
@@ -15,42 +15,17 @@ const Player = (function(){
         this.blocksVisibles = [];
         this.blocksAround = [];
         this.score = 0;
+        this.gameTime = 0;
+        this.gameTimer = null;
         this.moving = null;
         this.direction = "up";
         this.spriteTiming = null;
         this.nextSprite = true;
         this.currentSprite = 1;
     };
-    newPlayer.prototype.draw = function(){
-            ctx.fillStyle = this.color;
-            ctx.beginPath();
-            ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2, true);
-            ctx.closePath();
-            ctx.fill();
-    };
-    // newPlayer.prototype.getMyBlock = function(){
-    //     var inBlockX = Math.floor(this.pos.x/currentGame.carte.tailleBlock);
-    //     var inBlockY = Math.floor(this.pos.y/currentGame.carte.tailleBlock);
-    //     var blockIndex = (inBlockY * currentGame.carte.taille.x) + inBlockX;
-    //     // console.log("TCL: blockIndex", blockIndex)
-    //     if(this.surBlock !== currentGame.carte.blocks[blockIndex]){ //si block a changé
-    //         //send event to server
-    //         console.log("block changed!");
-    //         this.blocksAround = outils.getBlocksAround(this);
-    //         // console.log(this.blocksAround);
-    //         this.surBlock.playerIn = null;
-    //         this.surBlock = currentGame.carte.blocks[blockIndex];
-    //         currentGame.carte.blocks[blockIndex].playerIn = this;
-
-    //         if(currentGame.carte.base == this.surBlock && this.playersTrouves.length){
-    //             outils.killFound(this);
-                
-    //         }
-    //     }
-    // };
 
     return function(id, role, x, y, radius, sauteDistance, speed, socketId , color){
-        return new newPlayer(id, role, x, y, radius, sauteDistance, speed, socketId , color);
+        return new NewPlayer(id, role, x, y, radius, sauteDistance, speed, socketId , color);
     }
 }());
 

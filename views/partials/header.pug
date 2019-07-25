@@ -19,6 +19,7 @@ header
                     a.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true') Welcome #{user.name}
                     a.btn.btn-outline-secondary.my-2.my-sm-0.mr-md-3(href='/logout') Deconnecter
                 if pageTitle === "Game"
-                    a.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true') Game: #{myGamename}
+                    a.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true') Game: #{myGamename} | Temps de jeux: 
+                        span#time 00:00
                 if pageTitle === "Game"
                     a.btn.btn-danger.my-2.my-sm-0.mr-md-3(href='/hall') Sortir du Jeu

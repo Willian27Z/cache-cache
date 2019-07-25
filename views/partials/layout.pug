@@ -14,6 +14,13 @@ body
     script(src='/lib/popper.min.js')
     script(src='/lib/bootstrap.min.js')
     if pageTitle === "Game"
+        script.
+            var myGamename = "#{myGamename}";
+            var myUsername = "#{user.name}";
+            var map = !{map};
+            var tileset = !{tileset};
         script(src='/js/client.js')
     if pageTitle === "Hall des Joueurs"
+        script.
+            var myUsername = "#{user.name}";
         script(src='/js/hall.js')

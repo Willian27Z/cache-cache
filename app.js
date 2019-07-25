@@ -31,6 +31,7 @@ const colors = ["white", "blue", "green", "purple", "darkorange", "black"];
 app.use("/js", express.static(path.normalize(__dirname + "/assets/js")));
 app.use("/lib", express.static(path.normalize(__dirname + "/assets/libs")));
 app.use("/img", express.static(path.normalize(__dirname + "/assets/img")));
+app.use("/snd", express.static(path.normalize(__dirname + "/assets/sound")));
 app.use("/css", express.static(path.normalize(__dirname + "/assets/css")));
 app.use("/maps", express.static(path.normalize(__dirname + "/assets/maps")));
 
@@ -110,7 +111,7 @@ app.get("/game/:id", function(req, res){
     res.locals.pageTemplate.myGamename = gameName;
     let mapOfTheGame = games.find(function(oneGame){
         return oneGame.name === gameName
-    }).map
+    }).map;
     res.locals.pageTemplate.map = JSON.stringify(mapOfTheGame);
     res.locals.pageTemplate.tileset = JSON.stringify(tileset);
 
@@ -122,6 +123,59 @@ app.get("/game/:id", function(req, res){
             text: "Il faut se connecter pour accéder à cette page"
         }
         res.redirect("/");
+    }
+});
+
+app.get("/profil/:name", function(req, res){
+
+    if(!res.locals.pageTemplate.userIsLogged){
+        app.locals.message = {
+            type: "error",
+            text: "Il faut se connecter pour accéder à cette page"
+        }
+        res.redirect("/");
+    } else {
+        let playerName = decodeURIComponent(req.params.name);
+        res.locals.pageTemplate.pageTitle = "Profil";
+
+        bd.connect(function(err){
+            if(err) { 
+                console.log(err);
+                app.locals.message = {
+                    type: "error",
+                    text: "Il y eu un soucis interne. Veuillez reessayer plus tard."
+                };
+                res.redirect("/hall"); 
+            } else {
+                let coll = bd.get().db("jeuback").collection("users");
+                coll.find({name: playerName}).next(function(error, doc){
+                    bd.close();
+                    if(error){
+                        console.log(error);
+                        app.locals.message = {
+                            type: "error",
+                            text: "Il y eu un soucis interne. Veuillez reessayer plus tard."
+                        };
+                        res.redirect("/hall");
+                    } else {
+                        if(doc){
+                            res.locals.pageTemplate.playerName = doc.name;
+                            res.locals.pageTemplate.gamesPlayed = doc.gamesPlayed;
+                            res.locals.pageTemplate.totalScore = doc.totalScore;
+                            res.locals.pageTemplate.lastGame = doc.lastGame;
+                            res.locals.pageTemplate.lastGameTime = doc.lastGameTime;
+                            res.render("profil", res.locals.pageTemplate)
+                        } else {
+                            app.locals.message = {
+                                type: "error",
+                                text: "Ce profil n'a pas été trouvé ou n'éxistez pas."
+                            };
+                            res.redirect("/hall");
+                        }
+                    }
+                });
+            }
+        })
     }
 });
 
@@ -161,6 +215,7 @@ app.get("/login", function(req, res){
         }
     });
 });
+
 app.get("/signup", function(req, res){
     // vérification du formulaire ici;
     let id = req.query.identifiant.trim();
@@ -207,7 +262,9 @@ app.get("/signup", function(req, res){
                             email: mail,
                             password: mdp,
                             gamesPlayed: 0,
-                            totalScore: 0
+                            totalScore: 0,
+                            lastGame: null,
+                            lastGameTime: 0
                         }, function(err, result){
                             if(err){
                                 return console.log("Insertion Error: " + err);
@@ -558,6 +615,9 @@ ioServer.on("connection", function(socket){
                         currentGame.initialized = true;
                         ioServer.emit("game launched", currentGame.name);
                         currentGame.players.forEach(function(player){
+                            player.gametimer = setInterval(function(){
+                                player.gameTime++;
+                            },1000);
                             player.socket.emit("gameStarted", {
                                 gameID: currentGame.name,
                                 player: {
@@ -596,6 +656,49 @@ ioServer.on("connection", function(socket){
         socket.on("disconnect", function(){
             console.log("Player " + user.name + " disconnected");
 
+            if(currentGame.valid){ //if at least one round finished, register player's info in database
+                let lastScore = thisplayer.score;
+                let lastGameTime = thisplayer.gameTime;
+
+                bd.connect(function(err){
+                    if(err) { 
+                        console.log(err);
+                    } else {
+                        let coll = bd.get().db("jeuback").collection("users");
+                        coll.find({name: thisplayer.name}).next(function(error, doc){
+                            if(error){
+                                console.log(error);
+                                bd.close();
+                            } else {
+                                if(doc){
+                                    coll.updateOne({name: thisplayer.name},{
+                                        //modification à faire
+                                        $set : {
+                                            gamesPlayed: doc.gamesPlayed + 1,
+                                            totalScore: doc.totalScore + lastScore,
+                                            lastGame: new Date(),
+                                            lastGameTime: lastGameTime
+                                        }
+                                    }, function(err, result){ //callback
+                                        if(err){
+                                            console.log(err);
+                                        } else {
+                                            console.log("DB updated:");
+                                            console.log(result);
+                                        }
+                                        bd.close();
+                                    });
+                                } else {
+                                    console.log(thisplayer.name + " not found on database");
+                                }
+                            }
+                        });
+                    }
+                })
+
+            }
+
+
             let isHunter = false;
             if(thisplayer && thisplayer.role === "chasseur"){
                 isHunter = true;
@@ -611,9 +714,11 @@ ioServer.on("connection", function(socket){
             //if less than 2 players left
             if(currentGame.players.length <= 2){
                 currentGame.initialized = false;
+                currentGame.valid = false;
                 ioServer.emit("gameEnded", currentGame.name);
                 //temporary way to end the game
                 currentGame.players.forEach(function(player){
+                    clearInterval(player.gameTimer);
                     player.surBlock.playerIn = null;
                     player.socket.emit("kick", "Pas assez de joueurs pour continuer");
                 })
@@ -634,7 +739,7 @@ ioServer.on("connection", function(socket){
                         hunter.socket.emit("ciblesOntFuit", thisplayer.gameChair);
                     }
                 }
-
+                clearInterval(thisplayer.gameTimer);
                 //liberating seat in game
                 let playerIndexInGame = currentGame.players.indexOf(thisplayer);
                 currentGame.players.splice(playerIndexInGame, 1);
@@ -643,7 +748,6 @@ ioServer.on("connection", function(socket){
                     outils.restartGame(currentGame);
                 }
             }
-
 
             //Warning other of disconnection
             console.log(user.name + " a sorti du jeu: " + currentGame.name);

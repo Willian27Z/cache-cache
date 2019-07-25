@@ -459,6 +459,7 @@ const outils = {
         // player.blocksAround = [];
         // player.surBlock = null;
         if(game.nextRound.length === game.players.length - 1){
+            game.valid = true; // the round is finished, results will be counted in database
             outils.restartGame(game);
         }
     },

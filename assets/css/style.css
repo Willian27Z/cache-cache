@@ -1,10 +1,31 @@
 canvas{
     border: 1px solid black;
+    display: block;
     margin: auto;
 }
 
 h2 {
     text-align: center;
+}
+
+a {
+    text-decoration: none;
+    text-decoration-style: none;
+    color: black;
+}
+
+.playerLink {
+    color: white;
+}
+.playerLink:hover {
+    color: white;
+    text-decoration-style: solid;
+}
+
+a:hover {
+    text-decoration: none;
+    text-decoration-style: none;
+    color: black;
 }
 
 #loginBox {
@@ -72,4 +93,7 @@ h2 {
 .gameChairInGame + .role > img {
     display: block;
     margin: auto;
+}
+.row{
+    justify-content: center;
 }

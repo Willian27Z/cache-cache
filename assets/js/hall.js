@@ -1,4 +1,4 @@
-var serverAddress = "http://92.170.146.99/"
+var serverAddress = "https://cache-cache.herokuapp.com/"
 
 window.document.addEventListener("DOMContentLoaded", function () {
     socket = io(serverAddress);
@@ -122,7 +122,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
             for(var i = 0 ; i < playersConnected.length ; i++){
 
                 //Creates list item and adds to the right place
-                liJoueur = $("<li class='list-group-item' id='" + playersConnected[i].name + "'>").text(playersConnected[i].name)
+                liJoueur = $("<a href='/profil/" + encodeURIComponent(playersConnected[i].name) + "' class='list-group-item' id='" + playersConnected[i].name + "'>").text(playersConnected[i].name)
                 if(playersConnected[i].in === "hall"){
 
                     if(playersConnected[i].joined){
@@ -174,7 +174,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
             //Creates list item and adds to the right place
             var joueurs = $("#joueurs");
             var joueursEnJeu = $("#joueursEnJeux");
-            var liJoueur = $("<li class='list-group-item' id='" + user.name + "'>").text(user.name)
+            var liJoueur = $("<a href='/profil/" + encodeURIComponent(user.name) + "' class='list-group-item' id='" + user.name + "'>").text(user.name)
             if(user.in === "hall"){
                 if(!$("#" + user.name).length){
                     joueurs.append(liJoueur);
@@ -233,7 +233,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
             }
 
             //change player list background and text
-            $("li[id*='" + info.playerName + "']").addClass("bg-primary").text(info.playerName + " (" + info.gameName + ")");
+            $("a[id*='" + info.playerName + "']").addClass("bg-primary").text(info.playerName + " (" + info.gameName + ")");
             emit.checkInitiatedGames();
         });
         socket.on("player quit", function(info){
@@ -254,7 +254,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
 
             //adds the join button if not joined yet
             if(!emit.joined){
-                $("div[id*='" + nameOfTheGame + "'] > div > div[class*='gameChair" + info.gameChair + "'] >  div[class*='card-body'] > button").css("display", "inline");
+                $("div[id*='" + nameOfTheGame + "'] > div > div[class*='gameChair" + info.gameChair + "'] >  div[class*='card-body'] > button").css("display", "block");
             }
 
             //if you're the player who quit
@@ -262,7 +262,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 $("h5").each(function(index){
                     // console.log($(this));
                     if($(this).text() === "Libre"){
-                        $(this.nextSibling.nextSibling).css("display", "inline");
+                        $(this.nextSibling.nextSibling).css("display", "block");
                         //style.display = "inline";
                     }
                 });
@@ -284,7 +284,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
             }
 
             //change player list background and text
-            $("li[id*='" + info.playerName + "']").removeClass("bg-primary bg-warning").text(info.playerName);
+            $("a[id*='" + info.playerName + "']").removeClass("bg-primary bg-warning").text(info.playerName);
             emit.checkInitiatedGames();
         });
         socket.on("player disconnected", function(user){
@@ -294,7 +294,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
             // info.gameChair div[id*='man']
 
             //removes li
-            $("li[id*='" + user.name + "']").remove();
+            $("a[id*='" + user.name + "']").remove();
 
             if(user.joined){
                 
@@ -308,7 +308,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 $(selector).text("Libre");
 
                 //put join button again
-                $("div[id*='" + nameOfTheGame + "'] > div > div[class*='gameChair" + user.gameChair + "'] >  div[class*='card-body'] > button").css("display", "inline");
+                $("div[id*='" + nameOfTheGame + "'] > div > div[class*='gameChair" + user.gameChair + "'] >  div[class*='card-body'] > button").css("display", "block");
             }
             emit.checkInitiatedGames();
         });
@@ -328,7 +328,7 @@ window.document.addEventListener("DOMContentLoaded", function () {
             //add buttons if not joined a game
             if(!$(("button[name='quit']")).length){
                 $("#" + nameOfTheGame + " button").each(function(index){
-                    $(this).css("display", "inline");
+                    $(this).css("display", "block");
                 });
             }
         });

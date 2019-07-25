@@ -1,0 +1,12 @@
+extends partials/layout
+
+block main
+    .row.p-4
+        .jumbotron
+            h1.display-4 #{playerName}
+    .row.p-4
+        .list-group
+            li.list-group-item Total de parties joués: #{gamesPlayed}
+            li.list-group-item Total de points gagnés: #{totalScore}
+            li.list-group-item Dernier partie joué le: #{lastGame}
+            li.list-group-item Temps joué sur la dernier partie: #{lastGameTime}
