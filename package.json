@@ -4,7 +4,7 @@
   "description": "A multiplayer game of hide-and-seek",
   "main": "app.js",
   "scripts": {
-    "start": "app.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -26,7 +26,6 @@
   },
   "homepage": "https://github.com/Willian27Z/cache-cache#readme",
   "dependencies": {
-    "bootstrap": "^4.3.1",
     "connect-mongo": "^3.0.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
@@ -34,5 +33,8 @@
     "mongodb": "^3.2.7",
     "pug": "^2.0.4",
     "socket.io": "^2.2.0"
+  },
+  "engines": {
+    "node": "10.15.1"
   }
 }
