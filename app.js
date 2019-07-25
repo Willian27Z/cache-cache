@@ -1,3 +1,5 @@
+const PORT = process.env.PORT || 3000;
+
 /******************************* 
 ***********NODE MODULES*********
 *******************************/
@@ -310,7 +312,7 @@ app.use(function (req, res) {
     res.status(404).render('404');
 });
 
-const httpServer = app.listen(443, function(){
+const httpServer = app.listen(PORT, function(){
     console.log("Server listening at port: 443");
 });
 
