@@ -1,8 +1,8 @@
 /******************************* 
 ********GLOBAL VARIABLES********
 *******************************/
-//var serverAddress = "https://cache-cache.herokuapp.com/"
-var serverAddress = "http://92.170.146.99/"
+var serverAddress = "https://cache-cache.herokuapp.com/"
+//var serverAddress = "http://92.170.146.99/"
 var canvas = document.getElementById("canvas");
 var ctx;
 if (canvas.getContext) {
