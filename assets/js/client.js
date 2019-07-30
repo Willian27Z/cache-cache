@@ -2,7 +2,6 @@
 ********GLOBAL VARIABLES********
 *******************************/
 var serverAddress = "https://cache-cache.herokuapp.com/"
-//var serverAddress = "http://92.170.146.99/"
 var canvas = document.getElementById("canvas");
 var ctx;
 if (canvas.getContext) {
@@ -47,15 +46,6 @@ var game = {
                 game.sprites.width,
                 game.sprites.height,
             );
-            
-            
-            /* OLD WAY
-            ctx.fillStyle = this.color;
-            ctx.beginPath();
-            ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2, true);
-            ctx.closePath();
-            ctx.fill();
-            */
         },
     },
     sprites: {
@@ -118,14 +108,6 @@ var gameLoop = function(){
     //drawing visible opponents
     if(!game.player.done){
         for(var i = 0 ; game.player.playersSeen[i]; i++){
-            /*
-            ctx.fillStyle = game.player.playersSeen[i].color;
-            ctx.beginPath();
-            ctx.arc(game.player.playersSeen[i].pos.x, game.player.playersSeen[i].pos.y, game.player.playersSeen[i].radius, 0, Math.PI * 2, true);
-            ctx.closePath();
-            ctx.fill();
-            */
-
             ctx.drawImage(
                 game.sprites.images[game.player.playersSeen[i].gameChair],
                 game.sprites[game.player.playersSeen[i].dir][game.player.playersSeen[i].currentSprite][0],
@@ -143,14 +125,6 @@ var gameLoop = function(){
     //drawing all players if spectateur mode
     for(var i = 0 ; i < game.spectateur.length; i++){
         if(game.spectateur[i].name !== game.player.id){
-            /*
-            ctx.fillStyle = game.spectateur[i].color;
-            ctx.beginPath();
-            ctx.arc(game.spectateur[i].pos.x, game.spectateur[i].pos.y, game.spectateur[i].radius, 0, Math.PI * 2, true);
-            ctx.closePath();
-            ctx.fill();
-            */
-
             ctx.drawImage(
                 game.sprites.images[game.spectateur[i].gameChair],
                 game.sprites[game.spectateur[i].dir][game.spectateur[i].currentSprite][0],
@@ -256,21 +230,6 @@ var Block = (function(){
         // this.cachable = cachable; //boolean
     };
     OneBlock.prototype.draw = function(){
-        /* BASIC DRAWING
-        if(this.type === "mur"){
-            ctx.fillStyle = "brown";
-        } else {
-            if(this.base){
-                ctx.fillStyle = this.baseColor;
-            } else if (this.depart){
-                ctx.fillStyle = "yellow";
-            } else {
-                ctx.fillStyle = "white";
-            }
-        }
-        ctx.fillRect(this.x*this.taille, this.y*this.taille, this.taille, this.taille);
-        */
-        // IMAGE DRAWING
         var sourceX;
         var sourceY;
         if(this.imageIndex < tileset.columns){
@@ -283,15 +242,6 @@ var Block = (function(){
 
         ctx.drawImage(game.carte.image, sourceX, sourceY, this.taille, this.taille, this.x * this.taille, this.y * this.taille, this.taille, this.taille)
     },
-    // OneBlock.prototype.drawAgain = function(){
-    //     ctx.fillStyle = "green";
-    //     ctx.fillRect(this.x*taille, this.y*taille, this.taille, this.taille);
-    // },
-    // OneBlock.prototype.path = function(){
-    //     ctx.beginPath();
-    //     ctx.rect(this.x*taille, this.y*taille, this.taille, this.taille);
-    //     ctx.closePath();
-    // }
     OneBlock.prototype.flashBase = function(){
         if(!this.flashing){
             this.flashing = setInterval(function(){
@@ -308,17 +258,6 @@ var Block = (function(){
         return new OneBlock(taille, x, y, type, imageIndex, base, depart);
     }
 }());
-
-// var addEventListeners = function(){
-//     window.addEventListener("keydown", function(event){
-//         socket.emit("move", event.key);
-//     });
-    
-//     window.addEventListener("keyup", function(event){
-//         socket.emit("stop", event.key);
-//     });
-// }
-
 
 /******************************* 
 ********SOCKET.IO EVENTS********
@@ -426,14 +365,6 @@ window.document.addEventListener("DOMContentLoaded", function () {
                     $(this.parentElement).remove()
                 }
             });
-            // //Change role
-            // $("span[class*='badge-light']").each(function(index){
-            //     $(this).text("");
-            // });
-            // //change status
-            // $("span[class*='badge-light'] + p").each(function(index){
-            //     $(this).text("Non utilisé");
-            // });
 
             //initialize game
             console.log(gameData);
@@ -445,12 +376,6 @@ window.document.addEventListener("DOMContentLoaded", function () {
             game.player.role = gameData.player.role;
             game.player.color = gameData.player.color;
             game.player.gameChair = gameData.player.gameChair;
-            //get map and charge locally
-            // $.getJSON("/maps/map1.json", function( mapData ) {
-            //     var mapLoaded = mapData;
-            //     $.getJSON( "/maps/terrain.json", function( tileset ) {
-            //         var tileset = tileset;
-            //        drawMap(mapLoaded[0], tileset);
             drawMap(map, tileset);
             game.SFX.spotted = document.getElementById("spotted");
             game.SFX.round = document.getElementById("round");
@@ -623,13 +548,9 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 $("canvas").remove();
                 $(".row").append(kickText);
                 clearInterval(game.timer);
-                // alert(message);
-                // window.location.href = serverAddress + "hall";
             })
 
             gameLoop();
-            //    });
-            //});
         });
     });
 });

@@ -1,0 +1,96 @@
+extends partials/layout
+
+block main
+    h1.text-center.mb-4.mt-4 Les R&egrave;gles du Jeu
+    .row
+        .col-10
+            ul.list-group.list-group-horizontal
+                li.list-group-item.list-group-item-primary
+                    h2 Les r&ocirc;les:
+                    p 
+                        | Chaque partie a un 
+                        em &quot;chasseur&quot;
+                        |  et au moins un 
+                        em &quot;cacheur&quot;
+                        | .
+                    p
+                        | Le r&ocirc;le du Chasseur est de trouver les cacheurs et revenir &agrave; &quot;la base&quot; avant eux pour les &eacute;liminer de la partie.
+                    p
+                        | Le r&ocirc;le d&apos;un cacheur est d&apos;arriver &agrave; la base avant sans avoir &eacute;t&eacute; trouv&eacute; ou, s&apos;il est trouv&eacute;, d&apos;arriver &agrave; la base avant le chasseur.
+                li.list-group-item.list-group-item-success
+                    h2 Contr&ocirc;les:
+                    p
+                        | Utilisez les 
+                        em fl&egrave;ches
+                        |  du clavier pour vous d&eacute;placer sur le niveau.
+                    p
+                        | Le chasseur peut courrir &agrave; tout moment en appuyant sur 
+                        em space
+                        | . De la m&ecirc;me mani&egrave;re le cacheur peut courrir, 
+                        span(style='text-decoration: underline') mais seulement s&apos;il a &eacute;t&eacute; trouv&eacute;
+                        | .
+                li.list-group-item.list-group-item-warning
+                    h2 A la Fin de Partie:
+                    p
+                        | Une fois tout les cacheurs elimin&eacute;s ou arriv&eacute;s &agrave; la base, la partie est finit et une nouvelle partie est lanc&eacute; avec les r&ocirc;les chang&eacute;s. Le premier cacheur qui a gagn&eacute; ou &eacute;tait &eacute;limin&eacute; devient le prochain chasseur.
+                    p
+                        | Les parties sont reinitialis&eacute;s automatiquement et infiniment tant qu&apos;il y a au moins deux joueurs connect&eacute;s. Dans le cas contraire le jeux est termin&eacute;.
+    hr
+    .row
+        .col-10
+            h1.text-center.mb-4  A Propos du Jeu
+            p
+                | Ce jeu a &eacute;t&eacute; con&ccedil;u comme projet &quot;Atelier Back-End&quot; par moi dans le cadre de ma formation &quot;D&eacute;veloppeur Int&eacute;grateur Web - Full Stack Javascript&quot; &agrave; l&apos;IFOCOP. Son objectif est d&apos;implementer les connaissances acquises pendant la formation, notamment sur le d&eacute;veloppement back-end d&apos;une application en utilisant NodeJS et une m&eacute;thode de requ&ecirc;te asynchrone.
+            p
+                | Le jeu a &eacute;t&eacute; enti&egrave;rement con&ccedil;u en utilisant HTML, CSS et Javascript. Voici une liste des principaux aspects t&eacute;chniques utilis&eacute;s pour la conception de Cache-Cache:
+    .row.mb-4
+        .col-5
+            h3 Front-End
+            ul.list-group
+                li.list-group-item jQuery
+                li.list-group-item Bootstrap 4
+                li.list-group-item Popper.js
+                li.list-group-item Socket.io
+                li.list-group-item
+                    a.propos(href='https://https://www.mapeditor.org/' target='_blank') Tiled
+                    |  (pour l&apos;&eacute;dition des cartes)
+        .col-5
+            h3 Back-End
+            ul.list-group
+                li.list-group-item NodeJS
+                li.list-group-item ExpressJS
+                li.list-group-item Pug.js
+                li.list-group-item MongoDB
+                li.list-group-item Socket.io
+    .row
+        .col-10
+            p
+                | Vous pouvez voir le code dans &ccedil;a int&eacute;gralit&eacute; sur 
+                a.propos(href='https://github.com/Willian27Z/cache-cache') github
+                | .
+            p
+                | Credits &agrave; 
+                a.propos(href='mailto:lana-chan@yandex.ru') Svetlana Kushnariova
+                |  pour les sprites des caract&egrave;res, Brandon Morris et 
+                a.propos(href='http://www.soundcloud.com/virix' target='_blank') ViRiX (David McKee) 
+                | pour les effets sonores. Ces assets et d&apos;autres sont disponibles sur 
+                a.propos(href='https://opengameart.org/' target='_blank') OpenGameArt.com
+                | .
+    hr
+    .row
+        .col-10
+            h1.text-center.mb-4 A propos de Moi
+            p
+                | En tant que d&eacute;veloppeur mon ambition est de faire des applications cr&eacute;atifs et pratiques qui portent une vrai contribution &agrave; la vie cotidienne de tous.
+            p
+                | Mon autre objectif est de d&eacute;velopper des jeux cr&eacute;atifs et innovants, voir m&ecirc;me des nouveaux genres de jeu.
+            p
+                | Ma plus grande satisfaction en tant que d&eacute;veloppeur serais de cr&eacute;er un nouveau e-sport de port&eacute;e mondiale.
+            p
+                | Si vous souhaitez voir mon premier jeu &quot;Arsenal&quot;, 
+                a.propos(href='https://willianzolnowski.yo.fr/' target='_blank') voici le lien
+                | .
+            p
+                | Si vous souhaitez me contacter, je suis sur 
+                a.propos(href='https://www.linkedin.com/in/willian-zolnowski/' target='_blank') LinkedIn
+                | .

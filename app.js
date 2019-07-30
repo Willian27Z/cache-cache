@@ -87,6 +87,11 @@ app.get("/", function(req, res){
     }
 });
 
+app.get("/apropos", function(req, res){
+    res.locals.pageTemplate.pageTitle = "A Propos";
+    res.render("apropos", res.locals.pageTemplate)
+});
+
 app.get("/hall", function(req, res){
     res.locals.pageTemplate.pageTitle = "Hall des Joueurs";
     if(app.locals.message){
@@ -95,8 +100,6 @@ app.get("/hall", function(req, res){
         app.locals.message = null;
     }
     if(res.locals.pageTemplate.userIsLogged){
-        // console.log(req.cookies);
-        // console.log(req.session);
         res.render("games-list2", res.locals.pageTemplate);
     } else {
         app.locals.message = {
@@ -106,6 +109,7 @@ app.get("/hall", function(req, res){
         res.redirect("/");
     }
 });
+
 app.get("/game/:id", function(req, res){
     let gameName = decodeURIComponent(req.params.id);
 
@@ -166,6 +170,7 @@ app.get("/profil/:name", function(req, res){
                             res.locals.pageTemplate.totalScore = doc.totalScore;
                             res.locals.pageTemplate.lastGame = doc.lastGame;
                             res.locals.pageTemplate.lastGameTime = doc.lastGameTime;
+                            res.locals.pageTemplate.totalGameTime = doc.totalGameTime
                             res.render("profil", res.locals.pageTemplate)
                         } else {
                             app.locals.message = {
@@ -265,6 +270,7 @@ app.get("/signup", function(req, res){
                             password: mdp,
                             gamesPlayed: 0,
                             totalScore: 0,
+                            totalGameTime: 0,
                             lastGame: null,
                             lastGameTime: 0
                         }, function(err, result){
@@ -313,7 +319,7 @@ app.use(function (req, res) {
 });
 
 const httpServer = app.listen(PORT, function(){
-    console.log("Server listening at port: 443");
+    console.log("Server listening at port: " + PORT);
 });
 
 /******************************* 
@@ -326,12 +332,12 @@ let games = [];
 let playersConnected = [];
 
 //create game for testing
-let newGame = Game("Test Game", map, 5, "TheGameMaster");
+let newGame = Game("Where Is Brian", map, 5, "TheGameMaster");
 newGame.mapName = "map1";
 newGame.drawMap(tileset);
 games.push(newGame);
 console.log("game '" + newGame.name + "' created");
-let anotherGame = Game("Catch me if you can", map2, 5, "TheGameMaster");
+let anotherGame = Game("Attrape Moi Si Tu Peux", map2, 5, "TheGameMaster");
 anotherGame.mapName = "map2";
 anotherGame.drawMap(tileset);
 games.push(anotherGame);
@@ -447,28 +453,7 @@ ioServer.on("connection", function(socket){
                 }
             }
         });
-
-        // socket.on("ready", function(data){
-        //     let currentGame = games.find(function(game) {
-        //         return game.name === data.gameName;
-        //     });
-        //     let thisplayer = currentGame.players.find(function(player){
-        //         return player.name === user.name
-        //     })
-        //     thisplayer.ready = true;
-            
-        //     ioServer.emit("player ready", {gameName: data.gameName, playerName: user.name, gameChair: data.gameChair});
-
-        //     //if 2 or more are ready, chasseur can launch
-        //     if(currentGame.players.length >= 2){
-        //         currentGame.players.forEach(function(player){
-        //             if(player.role === "chasseur"){
-        //                 player.socket.emit("can launch", data.gameName);
-        //             }
-        //         })
-        //     }
-            
-        // });
+        
         socket.on("launch", function(gameName){
             console.log("launching game: " + gameName);
             let currentGame = games.find(function(game) {
@@ -679,7 +664,8 @@ ioServer.on("connection", function(socket){
                                             gamesPlayed: doc.gamesPlayed + 1,
                                             totalScore: doc.totalScore + lastScore,
                                             lastGame: new Date(),
-                                            lastGameTime: lastGameTime
+                                            lastGameTime: lastGameTime,
+                                            totalGameTime: doc.totalGameTime + lastGameTime
                                         }
                                     }, function(err, result){ //callback
                                         if(err){

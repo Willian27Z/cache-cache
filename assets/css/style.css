@@ -14,6 +14,10 @@ a {
     color: black;
 }
 
+em {
+    text-emphasis: bold;
+}
+
 .playerLink {
     color: white;
 }
@@ -26,6 +30,11 @@ a:hover {
     text-decoration: none;
     text-decoration-style: none;
     color: black;
+}
+
+a.propos {
+    color: blue;
+    text-decoration-style: solid;
 }
 
 #loginBox {

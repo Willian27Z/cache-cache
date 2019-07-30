@@ -1,5 +1,4 @@
 var serverAddress = "https://cache-cache.herokuapp.com/"
-//var serverAddress = "http://92.170.146.99/"
 
 window.document.addEventListener("DOMContentLoaded", function () {
     socket = io(serverAddress);
@@ -13,11 +12,6 @@ window.document.addEventListener("DOMContentLoaded", function () {
 
         socket.on("games list", function(gamesList){
             $("#gamesList").empty();
-            // console.log("TCL: gamesList", gamesList)
-            // game = {
-            //     name: "",
-            //     players: [{name: "", color: ""}]
-            // }
             //for each game
             for(var i = 0 ; i < gamesList.length ; i++){
                 var nameOfTheGame = gamesList[i].name.split(" ").join("");
@@ -191,7 +185,6 @@ window.document.addEventListener("DOMContentLoaded", function () {
 
                 let selector = "div[id*='" + nameOfTheGame + "'] > div > div[class*='gameChair" + user.gameChair + "'] >  div[class*='card-body'] > h5";
 
-                // console.log("TCL: selector", selector)
                 //change chair's player name
                 $(selector).text(user.name);
                 
@@ -199,14 +192,8 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 $("div[id*='" + nameOfTheGame + "'] > div > div[class*='gameChair" + user.gameChair + "']").addClass("bg-success");
             }
         });
-        // socket.on("game created", function(gameName){
-    
-        // });
+        
         socket.on("player joined", function(info){
-            // console.log("somebody joined!");
-            // info.gameName
-            // info.playerName
-            // info.gameChair div[id*='man']
 
             var nameOfTheGame = info.gameName.split(" ").join("");
 
@@ -238,10 +225,6 @@ window.document.addEventListener("DOMContentLoaded", function () {
             emit.checkInitiatedGames();
         });
         socket.on("player quit", function(info){
-            // console.log("somebody quit!");
-            // info.gameName
-            // info.playerName
-            // info.gameChair div[id*='man']
 
             var nameOfTheGame = info.gameName.split(" ").join("");
 
@@ -273,11 +256,6 @@ window.document.addEventListener("DOMContentLoaded", function () {
                 }
             }
 
-            //shows all other join buttons
-            // var buttons = $("button[name*='joindre']");
-            // console.log("TCL: buttons", buttons);
-            
-
             //removes buttons
             if(info.playerName === myUsername){
                 // $(("button[name='ready']")).remove();
@@ -289,11 +267,6 @@ window.document.addEventListener("DOMContentLoaded", function () {
             emit.checkInitiatedGames();
         });
         socket.on("player disconnected", function(user){
-            // console.log("somebody quit!");
-            // info.gameName
-            // info.playerName
-            // info.gameChair div[id*='man']
-
             //removes li
             $("a[id*='" + user.name + "']").remove();
 
@@ -378,12 +351,6 @@ var emit = {
             gameChair: gameChair,
         });
     },
-    // ready: function(gameChair, gameName){
-    //     socket.emit("ready", {
-    //         gameName: gameName,
-    //         gameChair: gameChair,
-    //     });
-    // },
     launch: function(gameName){
         console.log("launching game: " + gameName);
         socket.emit("launch", gameName);

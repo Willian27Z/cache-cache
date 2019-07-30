@@ -9,14 +9,12 @@ header
                     a.nav-link(href='/')
                         | Accueil
                 li.nav-item
-                    a.nav-link(href='/hall') 
-                        | Hall des Joueurs
-                li.nav-item
-                    a.nav-link(href='/game/1') 
+                    a.nav-link(href='/apropos') 
                         | Le Jeu
             form.form-inline.my-2.my-lg-0
-                if pageTitle === "Hall des Joueurs"
-                    a.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true') Welcome #{user.name}
+                if pageTitle === "Hall des Joueurs" || (pageTitle === "A Propos" && user) || pageTitle === "Profil"
+                    a.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true') Content de vous voir
+                    a.nav-link.playerLink(href="/profil/" + user.name) #{user.name} 
                     a.btn.btn-outline-secondary.my-2.my-sm-0.mr-md-3(href='/logout') Deconnecter
                 if pageTitle === "Game"
                     a.nav-link.disabled(href='#' tabindex='-1' aria-disabled='true') Game: #{myGamename} | Temps de jeux: 
