@@ -1,4 +1,5 @@
 const PORT = process.env.PORT || 2727;
+const DBACCESS = process.env.DBACCESS;
 
 /******************************* 
 ***********NODE MODULES*********
@@ -47,7 +48,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     store: new MongoStore({
-        url: 'mongodb+srv://admin:G5JYxQAEzOqzrlTa@cache-cache-o1uzn.gcp.mongodb.net/jeuback?retryWrites=true&w=majority'
+        url: 'mongodb+srv://admin:' + DBACCESS + '@cache-cache-o1uzn.gcp.mongodb.net/jeuback?retryWrites=true&w=majority'
     })
 }));
 
